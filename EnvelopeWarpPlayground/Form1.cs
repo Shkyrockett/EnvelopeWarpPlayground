@@ -37,26 +37,70 @@ namespace EnvelopeWarpPlayground
         /// </summary>
         private const int objectRadiusSquared = objectRadius * objectRadius;
 
+        /// <summary>
+        /// The envelope stroke
+        /// </summary>
         private static readonly Pen envelopeStroke = Pens.DarkRed;
+
+        /// <summary>
+        /// The envelope node fill
+        /// </summary>
         private static readonly Brush envelopeNodeFill = Brushes.Salmon;
+
+        /// <summary>
+        /// The envelope node stroke
+        /// </summary>
         private static readonly Pen envelopeNodeStroke = Pens.DarkRed;
+
+        /// <summary>
+        /// The envelope bounds stroke
+        /// </summary>
         private static readonly Pen envelopeBoundsStroke = new Pen(Color.Khaki)
         {
             DashPattern = new float[] { 3f, 3f }
         };
 
+        /// <summary>
+        /// The new polygon stroke
+        /// </summary>
         private static readonly Pen newPolygonStroke = Pens.Green;
+
+        /// <summary>
+        /// The new polygon dashed stroke
+        /// </summary>
         private static readonly Pen newPolygonDashedStroke = new Pen(Color.Green)
         {
             DashPattern = new float[] { 3f, 3f }
         };
 
+        /// <summary>
+        /// The polygon fill
+        /// </summary>
         private static readonly Brush polygonFill = Brushes.AliceBlue;
+
+        /// <summary>
+        /// The polygon stroke
+        /// </summary>
         private static readonly Pen polygonStroke = Pens.LightBlue;
+
+        /// <summary>
+        /// The polygon node fill
+        /// </summary>
         private static readonly Brush polygonNodeFill = Brushes.LightGoldenrodYellow;
+
+        /// <summary>
+        /// The polygon node stroke
+        /// </summary>
         private static readonly Pen polygonNodeStroke = Pens.Tan;
 
+        /// <summary>
+        /// The warped polygon fill
+        /// </summary>
         private static readonly Brush warpedPolygonFill = Brushes.CornflowerBlue;
+
+        /// <summary>
+        /// The warped polygon stroke
+        /// </summary>
         private static readonly Pen warpedPolygonStroke = Pens.Blue;
         #endregion Constants
 
@@ -110,9 +154,25 @@ namespace EnvelopeWarpPlayground
         /// The offset y.
         /// </summary>
         private float offsetY;
+
+        /// <summary>
+        /// The panning
+        /// </summary>
         private bool panning;
+
+        /// <summary>
+        /// The starting point
+        /// </summary>
         private PointF startingPoint;
+
+        /// <summary>
+        /// The pan point
+        /// </summary>
         private PointF panPoint;
+
+        /// <summary>
+        /// The scale
+        /// </summary>
         private float scale = 1f;
         #endregion Fields
 
@@ -192,7 +252,6 @@ namespace EnvelopeWarpPlayground
             var g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.Clear(picCanvas.BackColor);
-            g.ResetTransform();
             g.TranslateTransform(panPoint.X, panPoint.Y);
             g.ScaleTransform(scale, scale);
 
@@ -270,6 +329,9 @@ namespace EnvelopeWarpPlayground
                     g.DrawLine(newPolygonDashedStroke, newPolygon[^1], newPoint);
                 }
             }
+
+            g.ResetTransform();
+            g.DrawString($"Pan Point: {panPoint}\n\rScale: {scale}\n\rMouse Pos: {MousePosition}", this.Font, Brushes.Black, new PointF(0f, 0f));
         }
 
         /// <summary>
@@ -279,8 +341,8 @@ namespace EnvelopeWarpPlayground
         /// <param name="e">The mouse event arguments.</param>
         private void PicCanvas_MouseDown(object sender, MouseEventArgs e)
         {
-            var translateScalePoint = InverseTranslateScalePoint(e.Location, panPoint, scale);
-            var scalePoint = InverseScalePoint(e.Location, scale);
+            var translateScalePoint = ScreenToObject(panPoint, e.Location, scale);
+            var scalePoint = ScreenToObject(e.Location, scale);
 
             // See what we're over.
             if (e.Button == MouseButtons.Left)
@@ -364,12 +426,13 @@ namespace EnvelopeWarpPlayground
         /// <param name="e">The mouse event arguments.</param>
         private void PicCanvas_MouseMove_NotDrawing(object sender, MouseEventArgs e)
         {
-            var mousePoint = InverseTranslateScalePoint(e.Location, panPoint, scale);
+            var mousePoint = ScreenToObject(panPoint, e.Location, scale);
             picCanvas.Cursor =
                 MouseIsOverCornerPoint(mousePoint, polygons, envelope).Success ? Cursors.Arrow :
                 MouseIsOverEdge(mousePoint, polygons).Success ? Cursors.Cross :
                 MouseIsOverPolygon(mousePoint, polygons).Success ? Cursors.Hand :
                 Cursors.Cross;
+            picCanvas.Invalidate();
         }
 
         /// <summary>
@@ -379,7 +442,7 @@ namespace EnvelopeWarpPlayground
         /// <param name="e">The mouse event arguments.</param>
         private void PicCanvas_MouseMove_Drawing(object sender, MouseEventArgs e)
         {
-            newPoint = InverseTranslateScalePoint(e.Location, panPoint, scale);
+            newPoint = ScreenToObject(panPoint, e.Location, scale);
             picCanvas.Invalidate();
         }
 
@@ -390,7 +453,7 @@ namespace EnvelopeWarpPlayground
         /// <param name="e">The mouse event arguments.</param>
         private void PicCanvas_MouseUp_Drawing(object sender, MouseEventArgs e)
         {
-            var mousePoint = InverseTranslateScalePoint(e.Location, panPoint, scale);
+            var mousePoint = ScreenToObject(panPoint, e.Location, scale);
 
             // We are already drawing a polygon.
             // If it's the right mouse button, finish this polygon.
@@ -432,7 +495,7 @@ namespace EnvelopeWarpPlayground
         /// <param name="e">The mouse event arguments.</param>
         private void PicCanvas_MouseMove_MovingCorner(object sender, MouseEventArgs e)
         {
-            var mousePoint = InverseScalePoint(e.Location, scale);
+            var mousePoint = ScreenToObject(e.Location, scale);
 
             // Move the point.
             movingPolygon[movingPoint] = new PointF(mousePoint.X + offsetX, mousePoint.Y + offsetY);
@@ -474,7 +537,7 @@ namespace EnvelopeWarpPlayground
             picCanvas.MouseUp -= PicCanvas_MouseUp_MovingCorner;
             picCanvas.MouseDoubleClick -= PicCanvas_MouseDoubleClick_Corner;
 
-            var (Success, movingPolygon, movingPoint) = MouseIsOverCornerPoint(InverseTranslateScalePoint(e.Location, panPoint, scale), polygons, envelope);
+            var (Success, movingPolygon, movingPoint) = MouseIsOverCornerPoint(ScreenToObject(panPoint, e.Location, scale), polygons, envelope);
 
             if (Success)
             {
@@ -499,7 +562,7 @@ namespace EnvelopeWarpPlayground
         /// <param name="e">The mouse event arguments.</param>
         private void PicCanvas_MouseMove_MovingPolygon(object sender, MouseEventArgs e)
         {
-            var mousePoint = InverseScalePoint(e.Location, scale);
+            var mousePoint = ScreenToObject(e.Location, scale);
 
             // See how far the first point will move.
             var dx = mousePoint.X + offsetX - movingPolygon[0].X;
@@ -543,7 +606,7 @@ namespace EnvelopeWarpPlayground
         /// <param name="e">The <see cref="MouseEventArgs"/> instance containing the event data.</param>
         private void PicCanvas_MouseDoubleClick_Polygon(object sender, MouseEventArgs e)
         {
-            var mouse_pt = InverseTranslateScalePoint(e.Location, panPoint, scale);
+            var mouse_pt = ScreenToObject(panPoint, e.Location, scale);
 
             picCanvas.MouseMove += PicCanvas_MouseMove_NotDrawing;
             picCanvas.MouseMove -= PicCanvas_MouseMove_MovingPolygon;
@@ -612,9 +675,43 @@ namespace EnvelopeWarpPlayground
         /// <param name="e">The <see cref="MouseEventArgs"/> instance containing the event data.</param>
         private void PicCanvas_MouseWheel(object sender, MouseEventArgs e)
         {
+            var previousScale = scale;
             scale = MouseWheelScaleFactor(scale, e.Delta);
             scale = scale < scale_per_delta ? scale_per_delta : scale;
-            //movingPoint = ScrollTo(movingPoint, PointToClient(e.Location), scale);
+
+            panPoint = ZoomAtTransposedMatrix(panPoint, e.Location, previousScale, scale);
+
+            //polygonsBounds = PolygonBounds(polygons).Value;
+            polygonsDistorted = Distort(polygons, polygonsBounds, envelope);
+
+            // Redraw.
+            picCanvas.Invalidate();
+        }
+
+        /// <summary>
+        /// Handles the Click event of the ButtonResetPan control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void ButtonResetPan_Click(object sender, EventArgs e)
+        {
+            panPoint = new PointF(0f, 0f);
+
+            //polygonsBounds = PolygonBounds(polygons).Value;
+            polygonsDistorted = Distort(polygons, polygonsBounds, envelope);
+
+            // Redraw.
+            picCanvas.Invalidate();
+        }
+
+        /// <summary>
+        /// Handles the Click event of the ButtonResetScale control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void ButtonResetScale_Click(object sender, EventArgs e)
+        {
+            scale = 1;
 
             //polygonsBounds = PolygonBounds(polygons).Value;
             polygonsDistorted = Distort(polygons, polygonsBounds, envelope);

@@ -905,29 +905,219 @@ namespace EnvelopeWarpPlayground
         /// <param name="scale">The scale.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF InverseScalePoint(PointF point, float scale) => new PointF(1f / scale * point.X, 1f / scale * point.Y);
+        public static PointF ScreenToObject_(PointF point, float scale)
+        {
+            var invScale = 1f / scale;
+            return new PointF(invScale * point.X, invScale * point.Y);
+        }
+
+        /// <summary>
+        /// Screens to object.
+        /// </summary>
+        /// <param name="point">The point.</param>
+        /// <param name="scale">The scale.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PointF ScreenToObject(PointF point, float scale) => new PointF(point.X / scale, point.Y / scale);
 
         /// <summary>
         /// Inverses the translation and scale of a point.
         /// </summary>
-        /// <param name="point">The point.</param>
         /// <param name="offset">The offset.</param>
+        /// <param name="point">The point.</param>
         /// <param name="scale">The scale.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF InverseTranslateScalePoint(PointF point, PointF offset, float scale) => new PointF(1f / scale * (point.X - offset.X), 1f / scale * (point.Y - offset.Y));
+        public static PointF ScreenToObject_(PointF offset, PointF point, float scale)
+        {
+            var invScale = 1f / scale;
+            return new PointF((point.X - offset.X) * invScale, (point.Y - offset.Y) * invScale);
+        }
 
         /// <summary>
-        /// Converts to string.
+        /// Screens to object transposed matrix.
         /// </summary>
-        /// <param name="point">The point.</param>
-        /// <param name="format">The format.</param>
-        /// <param name="provider">The provider.</param>
-        /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
-        /// </returns>
+        /// <param name="offset">The offset.</param>
+        /// <param name="screenPoint">The screen point.</param>
+        /// <param name="scale">The scale.</param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string ToString(this Point point, string format, IFormatProvider provider) => $"{{X={point.X.ToString(format, provider)}, Y={point.Y.ToString(format, provider)}}}";
+        public static PointF ScreenToObjectTransposedMatrix_(PointF offset, PointF screenPoint, float scale)
+        {
+            var invScale = 1f / scale;
+            return new PointF((screenPoint.X * invScale) - offset.X, (screenPoint.Y * invScale) - offset.Y);
+        }
+
+        /// <summary>
+        /// Screens to object. https://stackoverflow.com/a/37269366
+        /// </summary>
+        /// <param name="offset">The offset.</param>
+        /// <param name="point">The screen point.</param>
+        /// <param name="scale">The scale.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PointF ScreenToObject(PointF offset, PointF point, float scale) => new PointF((point.X - offset.X) / scale, (point.Y - offset.Y) / scale);
+
+        /// <summary>
+        /// Screens to object transposed matrix. https://stackoverflow.com/a/37269366
+        /// </summary>
+        /// <param name="offset">The offset.</param>
+        /// <param name="screenPoint">The screen point.</param>
+        /// <param name="scale">The scale.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PointF ScreenToObjectTransposedMatrix(PointF offset, PointF screenPoint, float scale) => new PointF((screenPoint.X / scale) - offset.X, (screenPoint.Y / scale) - offset.Y);
+
+        /// <summary>
+        /// Objects to screen. https://stackoverflow.com/a/37269366
+        /// </summary>
+        /// <param name="offset">The offset.</param>
+        /// <param name="point">The object point.</param>
+        /// <param name="scale">The scale.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PointF ObjectToScreen(PointF offset, PointF point, float scale) => new PointF(offset.X + (point.X * scale), offset.Y + (point.Y * scale));
+
+        /// <summary>
+        /// Objects to screen transposed matrix. https://stackoverflow.com/a/37269366
+        /// </summary>
+        /// <param name="offset">The offset.</param>
+        /// <param name="objectPoint">The object point.</param>
+        /// <param name="scale">The scale.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PointF ObjectToScreenTransposedMatrix(PointF offset, PointF objectPoint, float scale) => new PointF((offset.X + objectPoint.X) * scale, (offset.Y + objectPoint.Y) * scale);
+
+        /// <summary>
+        /// Zooms at. https://stackoverflow.com/a/37269366
+        /// </summary>
+        /// <param name="offset">The offset.</param>
+        /// <param name="cursor">The cursor.</param>
+        /// <param name="previousScale">The previous scale.</param>
+        /// <param name="scale">The scale.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PointF ZoomAt(PointF offset, PointF cursor, float previousScale, float scale)
+        {
+            var point = ScreenToObject(offset, cursor, previousScale);
+            point = ObjectToScreen(offset, point, scale);
+            return new PointF(offset.X + (cursor.X - point.X) / scale, offset.Y + (cursor.Y - point.Y) / scale);
+        }
+
+        /// <summary>
+        /// Zooms at transposed matrix. https://stackoverflow.com/a/37269366
+        /// </summary>
+        /// <param name="offset">The offset.</param>
+        /// <param name="cursor">The cursor.</param>
+        /// <param name="previousScale">The previous scale.</param>
+        /// <param name="scale">The scale.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PointF ZoomAtTransposedMatrix(PointF offset, PointF cursor, float previousScale, float scale)
+        {
+            var point = ScreenToObjectTransposedMatrix(offset, cursor, previousScale);
+            point = ObjectToScreenTransposedMatrix(offset, point, scale);
+            return new PointF(offset.X + (cursor.X - point.X) / scale, offset.Y + (cursor.Y - point.Y) / scale);
+        }
+
+        /// <summary>
+        /// Subtracts the specified subtrahend.
+        /// </summary>
+        /// <param name="minuend">The minuend.</param>
+        /// <param name="subtrahend">The subtrahend.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PointF Subtract(this PointF minuend, PointF subtrahend) => new PointF(minuend.X - subtrahend.X, minuend.Y - subtrahend.Y);
+
+        /// <summary>
+        /// Subtracts the specified subtrahend.
+        /// </summary>
+        /// <param name="minuend">The minuend.</param>
+        /// <param name="subtrahend">The subtrahend.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PointF Subtract(this PointF minuend, Point subtrahend) => new PointF(minuend.X - subtrahend.X, minuend.Y - subtrahend.Y);
+
+        /// <summary>
+        /// Subtracts the specified subtrahend.
+        /// </summary>
+        /// <param name="minuend">The minuend.</param>
+        /// <param name="subtrahend">The subtrahend.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PointF Subtract(this Point minuend, PointF subtrahend) => new PointF(minuend.X - subtrahend.X, minuend.Y - subtrahend.Y);
+
+        /// <summary>
+        /// Subtracts the specified subtrahend.
+        /// </summary>
+        /// <param name="minuend">The minuend.</param>
+        /// <param name="subtrahend">The subtrahend.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Point Subtract(this Point minuend, Point subtrahend) => new Point(minuend.X - subtrahend.X, minuend.Y - subtrahend.Y);
+
+        /// <summary>
+        /// Adds the specified subtrahend.
+        /// </summary>
+        /// <param name="minuend">The minuend.</param>
+        /// <param name="subtrahend">The subtrahend.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PointF Add(this PointF minuend, PointF subtrahend) => new PointF(minuend.X + subtrahend.X, minuend.Y + subtrahend.Y);
+
+        /// <summary>
+        /// Adds the specified subtrahend.
+        /// </summary>
+        /// <param name="minuend">The minuend.</param>
+        /// <param name="subtrahend">The subtrahend.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PointF Add(this PointF minuend, Point subtrahend) => new PointF(minuend.X + subtrahend.X, minuend.Y + subtrahend.Y);
+
+        /// <summary>
+        /// Adds the specified subtrahend.
+        /// </summary>
+        /// <param name="minuend">The minuend.</param>
+        /// <param name="subtrahend">The subtrahend.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PointF Add(this Point minuend, PointF subtrahend) => new PointF(minuend.X + subtrahend.X, minuend.Y + subtrahend.Y);
+
+        /// <summary>
+        /// Adds the specified subtrahend.
+        /// </summary>
+        /// <param name="minuend">The minuend.</param>
+        /// <param name="subtrahend">The subtrahend.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Point Add(this Point minuend, Point subtrahend) => new Point(minuend.X + subtrahend.X, minuend.Y + subtrahend.Y);
+
+        /// <summary>
+        /// Scales the specified multiplier.
+        /// </summary>
+        /// <param name="multiplicand">The multiplicand.</param>
+        /// <param name="scaler">The scaler.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PointF Scale(this PointF multiplicand, float scaler) => new PointF(multiplicand.X * scaler, multiplicand.Y * scaler);
+
+        /// <summary>
+        /// Scales the specified scaler.
+        /// </summary>
+        /// <param name="multiplicand">The multiplicand.</param>
+        /// <param name="scaler">The scaler.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PointF Scale(this Point multiplicand, float scaler) => new PointF(multiplicand.X * scaler, multiplicand.Y * scaler);
+
+        /// <summary>
+        /// Scales the specified scaler.
+        /// </summary>
+        /// <param name="multiplicand">The multiplicand.</param>
+        /// <param name="scaler">The scaler.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Point Scale(this Point multiplicand, int scaler) => new Point(multiplicand.X * scaler, multiplicand.Y * scaler);
 
         /// <summary>
         /// Converts to string.
@@ -940,6 +1130,57 @@ namespace EnvelopeWarpPlayground
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ToString(this PointF point, string format, IFormatProvider provider) => $"{{X={point.X.ToString(format, provider)}, Y={point.Y.ToString(format, provider)}}}";
+
+        /// <summary>
+        /// Converts to string.
+        /// </summary>
+        /// <param name="point">The point.</param>
+        /// <param name="format">The format.</param>
+        /// <param name="provider">The provider.</param>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string ToString(this Point point, string format, IFormatProvider provider) => $"{{X={point.X.ToString(format, provider)}, Y={point.Y.ToString(format, provider)}}}";
         #endregion Point Manipulation Methods
+
+        ///// <summary>
+        ///// Scrolls to.
+        ///// </summary>
+        ///// <param name="imageLocation">The image location.</param>
+        ///// <param name="relativeDisplayPoint">The relative display point.</param>
+        ///// <param name="zoomFactor">The zoom factor.</param>
+        ///// <returns></returns>
+        ///// <acknowledgment>
+        ///// https://www.cyotek.com/blog/zooming-into-a-fixed-point-on-a-scrollablecontrol
+        ///// </acknowledgment>
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public static PointF ScrollTo(PointF imageLocation, PointF relativeDisplayPoint, float zoomFactor) => new PointF(
+        //        (imageLocation.X / zoomFactor) - relativeDisplayPoint.X * zoomFactor,
+        //        (imageLocation.Y / zoomFactor) - relativeDisplayPoint.Y * zoomFactor
+        //        );
+
+        ///// <summary>
+        ///// Zooms to region.
+        ///// </summary>
+        ///// <param name="rectangle">The rectangle.</param>
+        ///// <acknowledgment>
+        ///// https://www.cyotek.com/blog/zooming-to-fit-a-region-in-a-scrollablecontrol
+        ///// </acknowledgment>
+        //public void ZoomToRegion(RectangleF rectangle)
+        //{
+        //    double ratioX;
+        //    double ratioY;
+        //    int cx;
+        //    int cy;
+
+        //    ratioX = this.ClientSize.Width / rectangle.Width;
+        //    ratioY = this.ClientSize.Height / rectangle.Height;
+        //    cx = (int)(rectangle.X + (rectangle.Width / 2));
+        //    cy = (int)(rectangle.Y + (rectangle.Height / 2));
+
+        //    this.Zoom = (int)(Math.Min(ratioX, ratioY) * 100);
+        //    this.CenterAt(new Point(cx, cy));
+        //}
     }
 }

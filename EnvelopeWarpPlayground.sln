@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29021.104
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnvelopeWarpPlayground", "EnvelopeWarpPlayground\EnvelopeWarpPlayground.csproj", "{23112A46-7EA8-447D-9D63-02E62347C364}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EnvelopeWarpPlayground", "EnvelopeWarpPlayground\EnvelopeWarpPlayground.csproj", "{23112A46-7EA8-447D-9D63-02E62347C364}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

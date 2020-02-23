@@ -31,7 +31,7 @@ namespace EnvelopeWarpPlayground
         /// </summary>
         /// <param name="rectangle">The rectangle.</param>
         public CubicEnvelope(RectangleF rectangle)
-            : this(rectangle.X,rectangle.Y, rectangle.Width, rectangle.Height)
+            : this(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height)
         { }
 
         /// <summary>

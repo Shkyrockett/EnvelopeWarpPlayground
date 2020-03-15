@@ -205,31 +205,31 @@ namespace EnvelopeWarpPlayground
                 new PolygonContour(
                 new PointF(left, top),
                 new PointF(left + hStroke, top),
-                new PointF(left + hStroke, top + 1.5f * vStroke),
-                new PointF(left + 2f * hStroke, top + 1.5f * vStroke),
-                new PointF(left + 2f * hStroke, top),
-                new PointF(left + 3f * hStroke, top),
-                new PointF(left + 3f * hStroke, top + height),
-                new PointF(left + 2f * hStroke, top + height),
-                new PointF(left + 2f * hStroke, top + 2.5f * vStroke),
-                new PointF(left + hStroke, top + 2.5f * vStroke),
+                new PointF(left + hStroke, top + (1.5f * vStroke)),
+                new PointF(left + (2f * hStroke), top + (1.5f * vStroke)),
+                new PointF(left + (2f * hStroke), top),
+                new PointF(left + (3f * hStroke), top),
+                new PointF(left + (3f * hStroke), top + height),
+                new PointF(left + (2f * hStroke), top + height),
+                new PointF(left + (2f * hStroke), top + (2.5f * vStroke)),
+                new PointF(left + hStroke, top + (2.5f * vStroke)),
                 new PointF(left + hStroke, top + height),
                 new PointF(left, top + height)
                 ),
                 // I.
                 new PolygonContour(
-                new PointF(left + 3f * hStroke, top),
+                new PointF(left + (3f * hStroke), top),
                 new PointF(left + width, top),
                 new PointF(left + width, top + vStroke),
-                new PointF(left + 5f * hStroke, top + vStroke),
-                new PointF(left + 5f * hStroke, top + 3f * vStroke),
-                new PointF(left + width, top + 3f * vStroke),
+                new PointF(left + (5f * hStroke), top + vStroke),
+                new PointF(left + (5f * hStroke), top + (3f * vStroke)),
+                new PointF(left + width, top + (3f * vStroke)),
                 new PointF(left + width, top + height),
-                new PointF(left + 3f * hStroke, top + height),
-                new PointF(left + 3f * hStroke, top + 3f * vStroke),
-                new PointF(left + 4f * hStroke, top + 3f * vStroke),
-                new PointF(left + 4f * hStroke, top + vStroke),
-                new PointF(left + 3f * hStroke, top + vStroke)
+                new PointF(left + (3f * hStroke), top + height),
+                new PointF(left + (3f * hStroke), top + (3f * vStroke)),
+                new PointF(left + (4f * hStroke), top + (3f * vStroke)),
+                new PointF(left + (4f * hStroke), top + vStroke),
+                new PointF(left + (3f * hStroke), top + vStroke)
                 )
             };
 
@@ -252,8 +252,8 @@ namespace EnvelopeWarpPlayground
             var g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.Clear(picCanvas.BackColor);
-            g.TranslateTransform(panPoint.X, panPoint.Y);
             g.ScaleTransform(scale, scale);
+            g.TranslateTransform(panPoint.X, panPoint.Y);
 
             // Draw Polygon Bounds for Envelope Reference
             g.DrawRectangles(envelopeBoundsStroke, new RectangleF[] { polygonsBounds });
@@ -341,7 +341,7 @@ namespace EnvelopeWarpPlayground
         /// <param name="e">The mouse event arguments.</param>
         private void PicCanvas_MouseDown(object sender, MouseEventArgs e)
         {
-            var translateScalePoint = ScreenToObject(panPoint, e.Location, scale);
+            var translateScalePoint = ScreenToObjectTransposedMatrix(panPoint, e.Location, scale);
             var scalePoint = ScreenToObject(e.Location, scale);
 
             // See what we're over.
@@ -407,7 +407,8 @@ namespace EnvelopeWarpPlayground
             else if (e.Button == MouseButtons.Middle)
             {
                 panning = true;
-                startingPoint = PanAt(panPoint, e.Location);
+                startingPoint = translateScalePoint;
+                panPoint = ScreenToObjectTransposedMatrix(startingPoint, e.Location, scale);
 
                 // Get ready to work on the new polygon.
                 picCanvas.MouseMove -= PicCanvas_MouseMove_NotDrawing;
@@ -426,7 +427,7 @@ namespace EnvelopeWarpPlayground
         /// <param name="e">The mouse event arguments.</param>
         private void PicCanvas_MouseMove_NotDrawing(object sender, MouseEventArgs e)
         {
-            var mousePoint = ScreenToObject(panPoint, e.Location, scale);
+            var mousePoint = ScreenToObjectTransposedMatrix(panPoint, e.Location, scale);
             picCanvas.Cursor =
                 MouseIsOverCornerPoint(mousePoint, polygons, envelope).Success ? Cursors.Arrow :
                 MouseIsOverEdge(mousePoint, polygons).Success ? Cursors.Cross :
@@ -442,7 +443,7 @@ namespace EnvelopeWarpPlayground
         /// <param name="e">The mouse event arguments.</param>
         private void PicCanvas_MouseMove_Drawing(object sender, MouseEventArgs e)
         {
-            newPoint = ScreenToObject(panPoint, e.Location, scale);
+            newPoint = ScreenToObjectTransposedMatrix(panPoint, e.Location, scale);
             picCanvas.Invalidate();
         }
 
@@ -453,7 +454,7 @@ namespace EnvelopeWarpPlayground
         /// <param name="e">The mouse event arguments.</param>
         private void PicCanvas_MouseUp_Drawing(object sender, MouseEventArgs e)
         {
-            var mousePoint = ScreenToObject(panPoint, e.Location, scale);
+            var mousePoint = ScreenToObjectTransposedMatrix(panPoint, e.Location, scale);
 
             // We are already drawing a polygon.
             // If it's the right mouse button, finish this polygon.
@@ -537,7 +538,7 @@ namespace EnvelopeWarpPlayground
             picCanvas.MouseUp -= PicCanvas_MouseUp_MovingCorner;
             picCanvas.MouseDoubleClick -= PicCanvas_MouseDoubleClick_Corner;
 
-            var (Success, movingPolygon, movingPoint) = MouseIsOverCornerPoint(ScreenToObject(panPoint, e.Location, scale), polygons, envelope);
+            var (Success, movingPolygon, movingPoint) = MouseIsOverCornerPoint(ScreenToObjectTransposedMatrix(panPoint, e.Location, scale), polygons, envelope);
 
             if (Success)
             {
@@ -606,7 +607,7 @@ namespace EnvelopeWarpPlayground
         /// <param name="e">The <see cref="MouseEventArgs"/> instance containing the event data.</param>
         private void PicCanvas_MouseDoubleClick_Polygon(object sender, MouseEventArgs e)
         {
-            var mouse_pt = ScreenToObject(panPoint, e.Location, scale);
+            var mouse_pt = ScreenToObjectTransposedMatrix(panPoint, e.Location, scale);
 
             picCanvas.MouseMove += PicCanvas_MouseMove_NotDrawing;
             picCanvas.MouseMove -= PicCanvas_MouseMove_MovingPolygon;
@@ -635,7 +636,7 @@ namespace EnvelopeWarpPlayground
         {
             if (e.Button == MouseButtons.Middle && panning)
             {
-                panPoint = PanAt(startingPoint, e.Location);
+                panPoint = ScreenToObjectTransposedMatrix(startingPoint, e.Location, scale);
 
                 //polygonsBounds = PolygonBounds(polygons).Value;
                 polygonsDistorted = Distort(polygons, polygonsBounds, envelope);

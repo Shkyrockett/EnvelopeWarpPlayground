@@ -276,23 +276,23 @@ namespace EnvelopeWarpPlayground
 
             // Quadratic interpolate the left anchor node.
             var leftAnchor = (
-                X: reverseNormalSquared.Y * topLeft.X + (2f * reverseNormal.Y * normal.Y * leftHandle.X) + normalSquared.Y * bottomLeft.X,
-                Y: reverseNormalSquared.Y * topLeft.Y + (2f * reverseNormal.Y * normal.Y * leftHandle.Y) + normalSquared.Y * bottomLeft.Y
+                X: (reverseNormalSquared.Y * topLeft.X) + (2f * reverseNormal.Y * normal.Y * leftHandle.X) + (normalSquared.Y * bottomLeft.X),
+                Y: (reverseNormalSquared.Y * topLeft.Y) + (2f * reverseNormal.Y * normal.Y * leftHandle.Y) + (normalSquared.Y * bottomLeft.Y)
             );
             // Linear interpolate the left handle node.
             var handle = (
-                X: reverseNormal.Y * topHandle.X + (normal.Y * bottomHandle.X),
-                Y: reverseNormal.Y * topHandle.Y + (normal.Y * bottomHandle.Y)
+                X: (reverseNormal.Y * topHandle.X) + (normal.Y * bottomHandle.X),
+                Y: (reverseNormal.Y * topHandle.Y) + (normal.Y * bottomHandle.Y)
             );
             // Quadratic interpolate the right anchor node.
             var rightAnchor = (
-                X: reverseNormalSquared.Y * topRight.X + (2f * reverseNormal.Y * normal.Y * rightHandle.X) + normalSquared.Y * bottomRight.X,
-                Y: reverseNormalSquared.Y * topRight.Y + (2f * reverseNormal.Y * normal.Y * rightHandle.Y) + normalSquared.Y * bottomRight.Y
+                X: (reverseNormalSquared.Y * topRight.X) + (2f * reverseNormal.Y * normal.Y * rightHandle.X) + (normalSquared.Y * bottomRight.X),
+                Y: (reverseNormalSquared.Y * topRight.Y) + (2f * reverseNormal.Y * normal.Y * rightHandle.Y) + (normalSquared.Y * bottomRight.Y)
             );
             // Quadratic interpolate the final result.
             return new PointF(
-                x: reverseNormalSquared.X * leftAnchor.X + (2f * reverseNormal.X * normal.X * handle.X) + normalSquared.X * rightAnchor.X,
-                y: reverseNormalSquared.X * leftAnchor.Y + (2f * reverseNormal.X * normal.X * handle.Y) + normalSquared.X * rightAnchor.Y
+                x: (reverseNormalSquared.X * leftAnchor.X) + (2f * reverseNormal.X * normal.X * handle.X) + (normalSquared.X * rightAnchor.X),
+                y: (reverseNormalSquared.X * leftAnchor.Y) + (2f * reverseNormal.X * normal.X * handle.Y) + (normalSquared.X * rightAnchor.Y)
             );
         }
 
@@ -875,16 +875,6 @@ namespace EnvelopeWarpPlayground
         }
         #endregion Contains Methods
 
-        #region Point Manipulation Methods
-        /// <summary>
-        /// Pans at.
-        /// </summary>
-        /// <param name="startingPoint">The starting point.</param>
-        /// <param name="Location">The location.</param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF PanAt(PointF startingPoint, PointF Location) => new PointF(Location.X - startingPoint.X, Location.Y - startingPoint.Y);
-
         /// <summary>
         /// Scales the factor.
         /// </summary>
@@ -898,6 +888,7 @@ namespace EnvelopeWarpPlayground
             return (scale <= 0) ? 2f * float.Epsilon : scale;
         }
 
+        #region Point Manipulation Methods
         /// <summary>
         /// Inverses the scale point.
         /// </summary>
@@ -935,6 +926,16 @@ namespace EnvelopeWarpPlayground
         }
 
         /// <summary>
+        /// Screens to object. https://stackoverflow.com/a/37269366
+        /// </summary>
+        /// <param name="offset">The offset.</param>
+        /// <param name="point">The screen point.</param>
+        /// <param name="scale">The scale.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PointF ScreenToObject(PointF offset, PointF point, float scale) => new PointF((point.X - offset.X) / scale, (point.Y - offset.Y) / scale);
+
+        /// <summary>
         /// Screens to object transposed matrix.
         /// </summary>
         /// <param name="offset">The offset.</param>
@@ -949,16 +950,6 @@ namespace EnvelopeWarpPlayground
         }
 
         /// <summary>
-        /// Screens to object. https://stackoverflow.com/a/37269366
-        /// </summary>
-        /// <param name="offset">The offset.</param>
-        /// <param name="point">The screen point.</param>
-        /// <param name="scale">The scale.</param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF ScreenToObject(PointF offset, PointF point, float scale) => new PointF((point.X - offset.X) / scale, (point.Y - offset.Y) / scale);
-
-        /// <summary>
         /// Screens to object transposed matrix. https://stackoverflow.com/a/37269366
         /// </summary>
         /// <param name="offset">The offset.</param>
@@ -967,6 +958,15 @@ namespace EnvelopeWarpPlayground
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static PointF ScreenToObjectTransposedMatrix(PointF offset, PointF screenPoint, float scale) => new PointF((screenPoint.X / scale) - offset.X, (screenPoint.Y / scale) - offset.Y);
+
+        /// <summary>
+        /// Objects to screen.
+        /// </summary>
+        /// <param name="point">The point.</param>
+        /// <param name="scale">The scale.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PointF ObjectToScreen(PointF point, float scale) => new PointF(point.X * scale, point.Y * scale);
 
         /// <summary>
         /// Objects to screen. https://stackoverflow.com/a/37269366
@@ -1001,7 +1001,7 @@ namespace EnvelopeWarpPlayground
         {
             var point = ScreenToObject(offset, cursor, previousScale);
             point = ObjectToScreen(offset, point, scale);
-            return new PointF(offset.X + (cursor.X - point.X) / scale, offset.Y + (cursor.Y - point.Y) / scale);
+            return new PointF(offset.X + ((cursor.X - point.X) / scale), offset.Y + ((cursor.Y - point.Y) / scale));
         }
 
         /// <summary>
@@ -1017,9 +1017,10 @@ namespace EnvelopeWarpPlayground
         {
             var point = ScreenToObjectTransposedMatrix(offset, cursor, previousScale);
             point = ObjectToScreenTransposedMatrix(offset, point, scale);
-            return new PointF(offset.X + (cursor.X - point.X) / scale, offset.Y + (cursor.Y - point.Y) / scale);
+            return new PointF(offset.X + ((cursor.X - point.X) / scale), offset.Y + ((cursor.Y - point.Y) / scale));
         }
 
+        #region Subtract Point
         /// <summary>
         /// Subtracts the specified subtrahend.
         /// </summary>
@@ -1055,7 +1056,9 @@ namespace EnvelopeWarpPlayground
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Point Subtract(this Point minuend, Point subtrahend) => new Point(minuend.X - subtrahend.X, minuend.Y - subtrahend.Y);
+        #endregion
 
+        #region Add Point
         /// <summary>
         /// Adds the specified subtrahend.
         /// </summary>
@@ -1091,7 +1094,9 @@ namespace EnvelopeWarpPlayground
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Point Add(this Point minuend, Point subtrahend) => new Point(minuend.X + subtrahend.X, minuend.Y + subtrahend.Y);
+        #endregion
 
+        #region Scale Point
         /// <summary>
         /// Scales the specified multiplier.
         /// </summary>
@@ -1100,6 +1105,15 @@ namespace EnvelopeWarpPlayground
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static PointF Scale(this PointF multiplicand, float scaler) => new PointF(multiplicand.X * scaler, multiplicand.Y * scaler);
+
+        /// <summary>
+        /// Scales the specified multiplier.
+        /// </summary>
+        /// <param name="multiplicand">The multiplicand.</param>
+        /// <param name="scaler">The scaler.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PointF Scale(this PointF multiplicand, SizeF scaler) => new PointF(multiplicand.X * scaler.Width, multiplicand.Y * scaler.Height);
 
         /// <summary>
         /// Scales the specified scaler.
@@ -1117,8 +1131,28 @@ namespace EnvelopeWarpPlayground
         /// <param name="scaler">The scaler.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PointF Scale(this Point multiplicand, SizeF scaler) => new PointF(multiplicand.X * scaler.Width, multiplicand.Y * scaler.Height);
+
+        /// <summary>
+        /// Scales the specified scaler.
+        /// </summary>
+        /// <param name="multiplicand">The multiplicand.</param>
+        /// <param name="scaler">The scaler.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Point Scale(this Point multiplicand, int scaler) => new Point(multiplicand.X * scaler, multiplicand.Y * scaler);
 
+        /// <summary>
+        /// Scales the specified scaler.
+        /// </summary>
+        /// <param name="multiplicand">The multiplicand.</param>
+        /// <param name="scaler">The scaler.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Point Scale(this Point multiplicand, Size scaler) => new Point(multiplicand.X * scaler.Width, multiplicand.Y * scaler.Height);
+        #endregion Scale Point
+
+        #region Point To String
         /// <summary>
         /// Converts to string.
         /// </summary>
@@ -1142,45 +1176,7 @@ namespace EnvelopeWarpPlayground
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ToString(this Point point, string format, IFormatProvider provider) => $"{{X={point.X.ToString(format, provider)}, Y={point.Y.ToString(format, provider)}}}";
+        #endregion Point To String
         #endregion Point Manipulation Methods
-
-        ///// <summary>
-        ///// Scrolls to.
-        ///// </summary>
-        ///// <param name="imageLocation">The image location.</param>
-        ///// <param name="relativeDisplayPoint">The relative display point.</param>
-        ///// <param name="zoomFactor">The zoom factor.</param>
-        ///// <returns></returns>
-        ///// <acknowledgment>
-        ///// https://www.cyotek.com/blog/zooming-into-a-fixed-point-on-a-scrollablecontrol
-        ///// </acknowledgment>
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //public static PointF ScrollTo(PointF imageLocation, PointF relativeDisplayPoint, float zoomFactor) => new PointF(
-        //        (imageLocation.X / zoomFactor) - relativeDisplayPoint.X * zoomFactor,
-        //        (imageLocation.Y / zoomFactor) - relativeDisplayPoint.Y * zoomFactor
-        //        );
-
-        ///// <summary>
-        ///// Zooms to region.
-        ///// </summary>
-        ///// <param name="rectangle">The rectangle.</param>
-        ///// <acknowledgment>
-        ///// https://www.cyotek.com/blog/zooming-to-fit-a-region-in-a-scrollablecontrol
-        ///// </acknowledgment>
-        //public void ZoomToRegion(RectangleF rectangle)
-        //{
-        //    double ratioX;
-        //    double ratioY;
-        //    int cx;
-        //    int cy;
-
-        //    ratioX = this.ClientSize.Width / rectangle.Width;
-        //    ratioY = this.ClientSize.Height / rectangle.Height;
-        //    cx = (int)(rectangle.X + (rectangle.Width / 2));
-        //    cy = (int)(rectangle.Y + (rectangle.Height / 2));
-
-        //    this.Zoom = (int)(Math.Min(ratioX, ratioY) * 100);
-        //    this.CenterAt(new Point(cx, cy));
-        //}
     }
 }

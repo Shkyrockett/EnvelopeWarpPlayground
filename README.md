@@ -1,5 +1,5 @@
 # Envelope Warp Playground
 
-This is an experiment with warping polygons using envelope deformation in c# .NET Core 3.1 Windows Forms.
+This is an experiment with warping polygons using envelope deformation in c# .NET 5 Windows Forms.
 
 ![Screenshot](Screenshot.png)

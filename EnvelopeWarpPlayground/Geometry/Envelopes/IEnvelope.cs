@@ -16,8 +16,8 @@ namespace EnvelopeWarpPlayground
     /// <summary>
     /// Interface for Envelopes.
     /// </summary>
-    public interface IEnvelope :
-        IGeometry<PointF>
+    public interface IEnvelope
+        : IGeometry<PointF>
     {
         /// <summary>
         /// Processes the point.

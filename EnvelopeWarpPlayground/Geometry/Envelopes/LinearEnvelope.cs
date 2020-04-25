@@ -217,7 +217,7 @@ namespace EnvelopeWarpPlayground
         /// </summary>
         /// <param name="obj">The <paramref name="obj"/>.</param>
         /// <returns>The <see cref="bool"/>.</returns>
-        public override bool Equals(object obj) => obj is LinearEnvelope && Equals((LinearEnvelope)obj);
+        public override bool Equals(object obj) => obj is LinearEnvelope envelope && Equals(envelope);
 
         /// <summary>
         /// The equals.

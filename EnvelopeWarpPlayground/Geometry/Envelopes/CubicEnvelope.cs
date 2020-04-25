@@ -290,7 +290,7 @@ namespace EnvelopeWarpPlayground
         /// </summary>
         /// <param name="obj">The <paramref name="obj"/>.</param>
         /// <returns>The <see cref="bool"/>.</returns>
-        public override bool Equals(object obj) => obj is CubicEnvelope && Equals((CubicEnvelope)obj);
+        public override bool Equals(object obj) => obj is CubicEnvelope envelope && Equals(envelope);
 
         /// <summary>
         /// The equals.

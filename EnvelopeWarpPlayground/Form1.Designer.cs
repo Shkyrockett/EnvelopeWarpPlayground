@@ -26,7 +26,14 @@ namespace EnvelopeWarpPlayground
         /// </summary>
         private System.Windows.Forms.PictureBox picCanvas;
 
+        /// <summary>
+        /// The button reset pan
+        /// </summary>
         private System.Windows.Forms.Button buttonResetPan;
+
+        /// <summary>
+        /// The button reset scale
+        /// </summary>
         private System.Windows.Forms.Button buttonResetScale;
 
         /// <summary>
@@ -54,6 +61,7 @@ namespace EnvelopeWarpPlayground
             this.buttonResetPan = new System.Windows.Forms.Button();
             this.buttonResetScale = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.picCanvas)).BeginInit();
+            this.SuspendLayout();
             // 
             // picCanvas
             // 
@@ -63,7 +71,6 @@ namespace EnvelopeWarpPlayground
             this.picCanvas.BackColor = System.Drawing.SystemColors.Window;
             this.picCanvas.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.picCanvas.Location = new System.Drawing.Point(14, 14);
-            this.picCanvas.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.picCanvas.Name = "picCanvas";
             this.picCanvas.Size = new System.Drawing.Size(824, 491);
             this.picCanvas.TabIndex = 0;
@@ -103,11 +110,11 @@ namespace EnvelopeWarpPlayground
             this.Controls.Add(this.buttonResetScale);
             this.Controls.Add(this.buttonResetPan);
             this.Controls.Add(this.picCanvas);
-            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "Form1";
             this.Text = "Envelope Warp";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.picCanvas)).EndInit();
+            this.ResumeLayout(false);
 
         }
         #endregion

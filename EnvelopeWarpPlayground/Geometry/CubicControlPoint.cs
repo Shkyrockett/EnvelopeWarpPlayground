@@ -195,7 +195,7 @@ namespace EnvelopeWarpPlayground
         /// <returns>
         /// The <see cref="bool" />.
         /// </returns>
-        public override bool Equals(object obj) => obj is CubicControlPoint && Equals((CubicControlPoint)obj);
+        public override bool Equals(object obj) => obj is CubicControlPoint point && Equals(point);
 
         /// <summary>
         /// The equals.

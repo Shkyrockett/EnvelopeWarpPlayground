@@ -22,6 +22,7 @@ namespace EnvelopeWarpPlayground
     /// <summary>
     /// The form1 class.
     /// </summary>
+    /// <seealso cref="System.Windows.Forms.Form" />
     public partial class Form1
         : Form
     {
@@ -178,7 +179,7 @@ namespace EnvelopeWarpPlayground
 
         #region Constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="Form1"/> class.
+        /// Initializes a new instance of the <see cref="Form1" /> class.
         /// </summary>
         public Form1()
         {
@@ -192,7 +193,7 @@ namespace EnvelopeWarpPlayground
         /// <summary>
         /// The form1 load.
         /// </summary>
-        /// <param name="sender">The <paramref name="sender"/>.</param>
+        /// <param name="sender">The <paramref name="sender" />.</param>
         /// <param name="e">The event arguments.</param>
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -245,7 +246,7 @@ namespace EnvelopeWarpPlayground
         /// <summary>
         /// The pic canvas paint.
         /// </summary>
-        /// <param name="sender">The <paramref name="sender"/>.</param>
+        /// <param name="sender">The <paramref name="sender" />.</param>
         /// <param name="e">The paint event arguments.</param>
         private void PicCanvas_Paint(object sender, PaintEventArgs e)
         {
@@ -337,7 +338,7 @@ namespace EnvelopeWarpPlayground
         /// <summary>
         /// The pic canvas mouse down.
         /// </summary>
-        /// <param name="sender">The <paramref name="sender"/>.</param>
+        /// <param name="sender">The <paramref name="sender" />.</param>
         /// <param name="e">The mouse event arguments.</param>
         private void PicCanvas_MouseDown(object sender, MouseEventArgs e)
         {
@@ -423,7 +424,7 @@ namespace EnvelopeWarpPlayground
         /// <summary>
         /// See if we're over a polygon or corner point.
         /// </summary>
-        /// <param name="sender">The <paramref name="sender"/>.</param>
+        /// <param name="sender">The <paramref name="sender" />.</param>
         /// <param name="e">The mouse event arguments.</param>
         private void PicCanvas_MouseMove_NotDrawing(object sender, MouseEventArgs e)
         {
@@ -439,7 +440,7 @@ namespace EnvelopeWarpPlayground
         /// <summary>
         /// Move the next point in the new polygon.
         /// </summary>
-        /// <param name="sender">The <paramref name="sender"/>.</param>
+        /// <param name="sender">The <paramref name="sender" />.</param>
         /// <param name="e">The mouse event arguments.</param>
         private void PicCanvas_MouseMove_Drawing(object sender, MouseEventArgs e)
         {
@@ -450,7 +451,7 @@ namespace EnvelopeWarpPlayground
         /// <summary>
         /// Finish moving the selected polygon.
         /// </summary>
-        /// <param name="sender">The <paramref name="sender"/>.</param>
+        /// <param name="sender">The <paramref name="sender" />.</param>
         /// <param name="e">The mouse event arguments.</param>
         private void PicCanvas_MouseUp_Drawing(object sender, MouseEventArgs e)
         {
@@ -492,7 +493,7 @@ namespace EnvelopeWarpPlayground
         /// <summary>
         /// Move the selected corner.
         /// </summary>
-        /// <param name="sender">The <paramref name="sender"/>.</param>
+        /// <param name="sender">The <paramref name="sender" />.</param>
         /// <param name="e">The mouse event arguments.</param>
         private void PicCanvas_MouseMove_MovingCorner(object sender, MouseEventArgs e)
         {
@@ -516,7 +517,7 @@ namespace EnvelopeWarpPlayground
         /// <summary>
         /// Finish moving the selected corner.
         /// </summary>
-        /// <param name="sender">The <paramref name="sender"/>.</param>
+        /// <param name="sender">The <paramref name="sender" />.</param>
         /// <param name="e">The mouse event arguments.</param>
         private void PicCanvas_MouseUp_MovingCorner(object sender, MouseEventArgs e)
         {
@@ -530,7 +531,7 @@ namespace EnvelopeWarpPlayground
         /// Handles the MouseDoubleClick event of the PicCanvas control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="MouseEventArgs"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="MouseEventArgs" /> instance containing the event data.</param>
         private void PicCanvas_MouseDoubleClick_Corner(object sender, MouseEventArgs e)
         {
             picCanvas.MouseMove += PicCanvas_MouseMove_NotDrawing;
@@ -559,7 +560,7 @@ namespace EnvelopeWarpPlayground
         /// <summary>
         /// Move the selected polygon.
         /// </summary>
-        /// <param name="sender">The <paramref name="sender"/>.</param>
+        /// <param name="sender">The <paramref name="sender" />.</param>
         /// <param name="e">The mouse event arguments.</param>
         private void PicCanvas_MouseMove_MovingPolygon(object sender, MouseEventArgs e)
         {
@@ -590,7 +591,7 @@ namespace EnvelopeWarpPlayground
         /// <summary>
         /// Finish moving the selected polygon.
         /// </summary>
-        /// <param name="sender">The <paramref name="sender"/>.</param>
+        /// <param name="sender">The <paramref name="sender" />.</param>
         /// <param name="e">The mouse event arguments.</param>
         private void PicCanvas_MouseUp_MovingPolygon(object sender, MouseEventArgs e)
         {
@@ -604,7 +605,7 @@ namespace EnvelopeWarpPlayground
         /// Handles the MouseDoubleClick event of the PicCanvas control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="MouseEventArgs"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="MouseEventArgs" /> instance containing the event data.</param>
         private void PicCanvas_MouseDoubleClick_Polygon(object sender, MouseEventArgs e)
         {
             var mouse_pt = ScreenToObjectTransposedMatrix(panPoint, e.Location, scale);
@@ -631,7 +632,7 @@ namespace EnvelopeWarpPlayground
         /// Handles the Panning event of the PicCanvas_MouseMove control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="MouseEventArgs"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="MouseEventArgs" /> instance containing the event data.</param>
         private void PicCanvas_MouseMove_Panning(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Middle && panning)
@@ -650,7 +651,7 @@ namespace EnvelopeWarpPlayground
         /// Handles the Panning event of the PicCanvas_MouseUp control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="MouseEventArgs"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="MouseEventArgs" /> instance containing the event data.</param>
         private void PicCanvas_MouseUp_Panning(object sender, MouseEventArgs e)
         {
             picCanvas.MouseMove += PicCanvas_MouseMove_NotDrawing;
@@ -673,7 +674,7 @@ namespace EnvelopeWarpPlayground
         /// Handles the MouseWheel event of the Form1 control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="MouseEventArgs"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="MouseEventArgs" /> instance containing the event data.</param>
         private void PicCanvas_MouseWheel(object sender, MouseEventArgs e)
         {
             var previousScale = scale;
@@ -693,7 +694,7 @@ namespace EnvelopeWarpPlayground
         /// Handles the Click event of the ButtonResetPan control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
         private void ButtonResetPan_Click(object sender, EventArgs e)
         {
             panPoint = new PointF(0f, 0f);
@@ -709,7 +710,7 @@ namespace EnvelopeWarpPlayground
         /// Handles the Click event of the ButtonResetScale control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
         private void ButtonResetScale_Click(object sender, EventArgs e)
         {
             scale = 1;

@@ -17,6 +17,7 @@ namespace EnvelopeWarpPlayground
     /// <summary>
     /// The IGeometry interface.
     /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IGeometry<T>
     //where T : IEquatable<T>
     {
@@ -32,20 +33,20 @@ namespace EnvelopeWarpPlayground
 
         #region Enumeration
         /// <summary>
-        /// Gets or sets the <see cref="PointF"/> at the specified index.
+        /// Gets or sets the <see cref="PointF" /> at the specified index.
         /// </summary>
         /// <value>
-        /// The <see cref="PointF"/>.
+        /// The <see cref="PointF" />.
         /// </value>
         /// <param name="index">The index.</param>
         /// <returns></returns>
         T this[int index] { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="PointF"/> at the specified index.
+        /// Gets or sets the <see cref="PointF" /> at the specified index.
         /// </summary>
         /// <value>
-        /// The <see cref="PointF"/>.
+        /// The <see cref="PointF" />.
         /// </value>
         /// <param name="index">The index.</param>
         /// <returns></returns>

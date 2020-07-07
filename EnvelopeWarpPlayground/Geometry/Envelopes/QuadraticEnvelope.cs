@@ -10,6 +10,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Globalization;
@@ -22,12 +23,13 @@ namespace EnvelopeWarpPlayground
     /// </summary>
     /// <seealso cref="IEnvelope" />
     /// <seealso cref="IEquatable{T}" />
+    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public struct QuadraticEnvelope
         : IEnvelope, IEquatable<QuadraticEnvelope>
     {
         #region Constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="QuadraticEnvelope"/> struct.
+        /// Initializes a new instance of the <see cref="QuadraticEnvelope" /> struct.
         /// </summary>
         /// <param name="rectangle">The rectangle.</param>
         public QuadraticEnvelope(RectangleF rectangle)
@@ -35,7 +37,7 @@ namespace EnvelopeWarpPlayground
         { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="QuadraticEnvelope"/> class.
+        /// Initializes a new instance of the <see cref="QuadraticEnvelope" /> class.
         /// </summary>
         /// <param name="x">The x.</param>
         /// <param name="y">The y.</param>
@@ -54,12 +56,10 @@ namespace EnvelopeWarpPlayground
             ControlHandleLeft = new PointF(x, y + h2);
             ControlPointBottomRight = new PointF(x + width, y + height);
             ControlHandleBottom = new PointF(x + w2, y + height);
-
-            //Update();
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="QuadraticEnvelope"/> struct.
+        /// Initializes a new instance of the <see cref="QuadraticEnvelope" /> struct.
         /// </summary>
         /// <param name="controlPointTopLeft">The control point top left.</param>
         /// <param name="controlHandleTop">The control handle top.</param>
@@ -71,14 +71,7 @@ namespace EnvelopeWarpPlayground
         /// <param name="controlHandleBottom">The control handle bottom.</param>
         public QuadraticEnvelope(PointF controlPointTopLeft, PointF controlHandleTop, PointF controlPointTopRight, PointF controlHandleRight, PointF controlPointBottomLeft, PointF controlHandleLeft, PointF controlPointBottomRight, PointF controlHandleBottom)
         {
-            ControlPointTopLeft = controlPointTopLeft;
-            ControlHandleTop = controlHandleTop;
-            ControlPointTopRight = controlPointTopRight;
-            ControlHandleRight = controlHandleRight;
-            ControlPointBottomLeft = controlPointBottomLeft;
-            ControlHandleLeft = controlHandleLeft;
-            ControlPointBottomRight = controlPointBottomRight;
-            ControlHandleBottom = controlHandleBottom;
+            (ControlPointTopLeft, ControlHandleTop, ControlPointTopRight, ControlHandleRight, ControlPointBottomLeft, ControlHandleLeft, ControlPointBottomRight, ControlHandleBottom) = (controlPointTopLeft, controlHandleTop, controlPointTopRight, controlHandleRight, controlPointBottomLeft, controlHandleLeft, controlPointBottomRight, controlHandleBottom);
         }
         #endregion Constructors
 
@@ -86,46 +79,73 @@ namespace EnvelopeWarpPlayground
         /// <summary>
         /// Gets or sets the control point top left.
         /// </summary>
+        /// <value>
+        /// The control point top left.
+        /// </value>
         public PointF ControlPointTopLeft { get; set; }
 
         /// <summary>
         /// Gets or sets the control handle top.
         /// </summary>
+        /// <value>
+        /// The control handle top.
+        /// </value>
         public PointF ControlHandleTop { get; set; }
 
         /// <summary>
         /// Gets or sets the control point top right.
         /// </summary>
+        /// <value>
+        /// The control point top right.
+        /// </value>
         public PointF ControlPointTopRight { get; set; }
 
         /// <summary>
         /// Gets or sets the control handle right.
         /// </summary>
+        /// <value>
+        /// The control handle right.
+        /// </value>
         public PointF ControlHandleRight { get; set; }
 
         /// <summary>
         /// Gets or sets the control point bottom left.
         /// </summary>
+        /// <value>
+        /// The control point bottom left.
+        /// </value>
         public PointF ControlPointBottomLeft { get; set; }
 
         /// <summary>
         /// Gets or sets the control handle left.
         /// </summary>
+        /// <value>
+        /// The control handle left.
+        /// </value>
         public PointF ControlHandleLeft { get; set; }
 
         /// <summary>
         /// Gets or sets the control point bottom right.
         /// </summary>
+        /// <value>
+        /// The control point bottom right.
+        /// </value>
         public PointF ControlPointBottomRight { get; set; }
 
         /// <summary>
         /// Gets or sets the control handle bottom.
         /// </summary>
+        /// <value>
+        /// The control handle bottom.
+        /// </value>
         public PointF ControlHandleBottom { get; set; }
 
         /// <summary>
         /// Gets the count.
         /// </summary>
+        /// <value>
+        /// The count.
+        /// </value>
         public int Count => 8;
         #endregion Properties
 
@@ -133,8 +153,14 @@ namespace EnvelopeWarpPlayground
         /// <summary>
         /// The Indexer.
         /// </summary>
-        /// <param name="index">The <paramref name="index"/> index.</param>
-        /// <returns>One element of type PointF?.</returns>
+        /// <value>
+        /// The <see cref="PointF"/>.
+        /// </value>
+        /// <param name="index">The <paramref name="index" /> index.</param>
+        /// <returns>
+        /// One element of type PointF?.
+        /// </returns>
+        /// <exception cref="IndexOutOfRangeException"></exception>
         public PointF this[int index]
         {
             get
@@ -187,10 +213,10 @@ namespace EnvelopeWarpPlayground
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="PointF"/> at the specified index.
+        /// Gets or sets the <see cref="PointF" /> at the specified index.
         /// </summary>
         /// <value>
-        /// The <see cref="PointF"/>.
+        /// The <see cref="PointF" />.
         /// </value>
         /// <param name="index">The index.</param>
         /// <returns></returns>
@@ -199,7 +225,9 @@ namespace EnvelopeWarpPlayground
         /// <summary>
         /// Get the enumerator.
         /// </summary>
-        /// <returns>The <see cref="T:IEnumerator{CubicControlPoint}"/>.</returns>
+        /// <returns>
+        /// The <see cref="T:IEnumerator{CubicControlPoint}" />.
+        /// </returns>
         public IEnumerator<PointF> GetEnumerator()
         {
             yield return ControlPointTopLeft;
@@ -217,17 +245,21 @@ namespace EnvelopeWarpPlayground
         /// <summary>
         /// The operator ==.
         /// </summary>
-        /// <param name="left">The <paramref name="left"/>.</param>
-        /// <param name="right">The <paramref name="right"/>.</param>
-        /// <returns>The <see cref="bool"/>.</returns>
+        /// <param name="left">The <paramref name="left" />.</param>
+        /// <param name="right">The <paramref name="right" />.</param>
+        /// <returns>
+        /// The <see cref="bool" />.
+        /// </returns>
         public static bool operator ==(QuadraticEnvelope left, QuadraticEnvelope right) => left.Equals(right);
 
         /// <summary>
         /// The operator !=.
         /// </summary>
-        /// <param name="left">The <paramref name="left"/>.</param>
-        /// <param name="right">The <paramref name="right"/>.</param>
-        /// <returns>The <see cref="bool"/>.</returns>
+        /// <param name="left">The <paramref name="left" />.</param>
+        /// <param name="right">The <paramref name="right" />.</param>
+        /// <returns>
+        /// The <see cref="bool" />.
+        /// </returns>
         public static bool operator !=(QuadraticEnvelope left, QuadraticEnvelope right) => !(left == right);
         #endregion Operators
 
@@ -249,7 +281,9 @@ namespace EnvelopeWarpPlayground
         /// <summary>
         /// The to GraphicsPath.
         /// </summary>
-        /// <returns>The <see cref="GraphicsPath"/>.</returns>
+        /// <returns>
+        /// The <see cref="GraphicsPath" />.
+        /// </returns>
         public GraphicsPath ToGraphicsPath()
         {
             var path = new GraphicsPath();
@@ -269,21 +303,27 @@ namespace EnvelopeWarpPlayground
         /// <summary>
         /// Get the hash code.
         /// </summary>
-        /// <returns>The <see cref="int"/>.</returns>
+        /// <returns>
+        /// The <see cref="int" />.
+        /// </returns>
         public override int GetHashCode() => HashCode.Combine(ControlPointTopLeft, ControlHandleTop, ControlPointTopRight, ControlHandleRight, ControlPointBottomLeft, ControlHandleLeft, ControlPointBottomRight, ControlHandleBottom);
 
         /// <summary>
         /// The equals.
         /// </summary>
-        /// <param name="obj">The <paramref name="obj"/>.</param>
-        /// <returns>The <see cref="bool"/>.</returns>
+        /// <param name="obj">The <paramref name="obj" />.</param>
+        /// <returns>
+        /// The <see cref="bool" />.
+        /// </returns>
         public override bool Equals(object obj) => obj is QuadraticEnvelope envelope && Equals(envelope);
 
         /// <summary>
         /// The equals.
         /// </summary>
-        /// <param name="envelope">The <paramref name="envelope"/>.</param>
-        /// <returns>The <see cref="bool"/>.</returns>
+        /// <param name="envelope">The <paramref name="envelope" />.</param>
+        /// <returns>
+        /// The <see cref="bool" />.
+        /// </returns>
         public bool Equals(QuadraticEnvelope envelope) =>
             ControlPointTopLeft.Equals(envelope.ControlPointTopLeft)
             && ControlHandleTop.Equals(envelope.ControlHandleTop)
@@ -315,28 +355,34 @@ namespace EnvelopeWarpPlayground
         public static bool Compare(QuadraticEnvelope a, QuadraticEnvelope b) => a.Equals(b);
 
         /// <summary>
-        /// Creates a human-readable string that represents this <see cref="QuadraticEnvelope"/>.
+        /// Creates a human-readable string that represents this <see cref="QuadraticEnvelope" />.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
         public override string ToString() => ToString(null /* format string */, CultureInfo.InvariantCulture /* format provider */);
 
         /// <summary>
-        /// Creates a <see cref="string"/> representation of this <see cref="QuadraticEnvelope"/> struct based on the IFormatProvider
+        /// Creates a <see cref="string" /> representation of this <see cref="QuadraticEnvelope" /> struct based on the IFormatProvider
         /// passed in.  If the provider is null, the CurrentCulture is used.
         /// </summary>
-        /// <param name="provider">The <paramref name="provider"/>.</param>
-        /// <returns>A <see cref="string"/> representation of this object.</returns>
+        /// <param name="provider">The <paramref name="provider" />.</param>
+        /// <returns>
+        /// A <see cref="string" /> representation of this object.
+        /// </returns>
         public string ToString(IFormatProvider provider) => ToString(null /* format string */, provider);
 
         /// <summary>
-        /// Creates a <see cref="string"/> representation of this <see cref="QuadraticEnvelope"/> class based on the format string
+        /// Creates a <see cref="string" /> representation of this <see cref="QuadraticEnvelope" /> class based on the format string
         /// and IFormatProvider passed in.
         /// If the provider is null, the CurrentCulture is used.
         /// See the documentation for IFormattable for more information.
         /// </summary>
         /// <param name="format">The format.</param>
         /// <param name="provider">The provider.</param>
-        /// <returns>A <see cref="string"/> representation of this object.</returns>
+        /// <returns>
+        /// A <see cref="string" /> representation of this object.
+        /// </returns>
         public string ToString(string format, IFormatProvider provider)
         {
             var sep = ',';
@@ -349,6 +395,12 @@ namespace EnvelopeWarpPlayground
                 $"{sep}{nameof(ControlPointBottomRight)}={ControlPointBottomRight.ToString(format, provider)}" +
                 $"{sep}{nameof(ControlHandleBottom)}={ControlHandleBottom.ToString(format, provider)}}}";
         }
+
+        /// <summary>
+        /// Gets the debugger display.
+        /// </summary>
+        /// <returns></returns>
+        private string GetDebuggerDisplay() => ToString();
         #endregion Methods
     }
 }

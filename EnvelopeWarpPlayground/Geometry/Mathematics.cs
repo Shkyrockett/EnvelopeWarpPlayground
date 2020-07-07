@@ -375,7 +375,7 @@ namespace EnvelopeWarpPlayground
         /// The <see cref="PointF" />.
         /// </returns>
         /// <remarks>
-        /// This is a more optimized version of <see cref="CubicBezierEnvelope(PointF, RectangleF, PointF, PointF, PointF, PointF, PointF, PointF, PointF, PointF, PointF, PointF, PointF, PointF)"/> 
+        /// This is a more optimized version of <see cref="CubicBezierEnvelope(PointF, RectangleF, PointF, PointF, PointF, PointF, PointF, PointF, PointF, PointF, PointF, PointF, PointF, PointF)" />
         /// where the lerping magic is deduplicated and inlined.
         /// </remarks>
         /// <acknowledgment>
@@ -449,7 +449,9 @@ namespace EnvelopeWarpPlayground
         /// </summary>
         /// <param name="a">The starting point.</param>
         /// <param name="b">The end point.</param>
-        /// <returns>Returns a Quadratic Bézier curve from the properties of a line segment.</returns>
+        /// <returns>
+        /// Returns a Quadratic Bézier curve from the properties of a line segment.
+        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (PointF a, PointF b, PointF c) LineSegmentToQuadraticBezier(PointF a, PointF b) => (a, Lerp(a, b, OneHalf), b);
 
@@ -458,7 +460,9 @@ namespace EnvelopeWarpPlayground
         /// </summary>
         /// <param name="a">The starting point.</param>
         /// <param name="b">The end point.</param>
-        /// <returns>Returns a Cubic Bézier curve from the properties of a line segment.</returns>
+        /// <returns>
+        /// Returns a Cubic Bézier curve from the properties of a line segment.
+        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (PointF a, PointF b, PointF c, PointF d) LineSegmentToCubicBezier(PointF a, PointF b) => (a, Lerp(a, b, OneThird), Lerp(a, b, TwoThirds), b);
 
@@ -468,7 +472,9 @@ namespace EnvelopeWarpPlayground
         /// <param name="a">The starting point.</param>
         /// <param name="b">The handle.</param>
         /// <param name="c">The end point.</param>
-        /// <returns>Returns Quadratic Bézier curve from a cubic curve.</returns>
+        /// <returns>
+        /// Returns Quadratic Bézier curve from a cubic curve.
+        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (PointF a, PointF b, PointF c, PointF d) QuadraticBezierToCubicBezier(PointF a, PointF b, PointF c)
             => (new PointF(a.X, a.Y),
@@ -697,7 +703,9 @@ namespace EnvelopeWarpPlayground
         /// </summary>
         /// <param name="rectA">The rectA.</param>
         /// <param name="rectB">The rectB.</param>
-        /// <returns>The <see cref="RectangleF"/>.</returns>
+        /// <returns>
+        /// The <see cref="RectangleF" />.
+        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RectangleF Union(this RectangleF rectA, RectangleF rectB)
         {
@@ -742,7 +750,7 @@ namespace EnvelopeWarpPlayground
         /// <param name="point">The test point.</param>
         /// <param name="epsilon">The epsilon.</param>
         /// <returns>
-        /// Returns <see cref="Inclusions.Outside"/> (0) if false, <see cref="Inclusions.Inside"/> (+1) if true, <see cref="Inclusions.Boundary"/> (-1) if the point is on a polygon boundary.
+        /// Returns <see cref="Inclusions.Outside" /> (0) if false, <see cref="Inclusions.Inside" /> (+1) if true, <see cref="Inclusions.Boundary" /> (-1) if the point is on a polygon boundary.
         /// </returns>
         /// <exception cref="ArgumentNullException">polygon</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -778,7 +786,7 @@ namespace EnvelopeWarpPlayground
         /// <param name="point">The test point.</param>
         /// <param name="epsilon">The <paramref name="epsilon" /> or minimal value to represent a change.</param>
         /// <returns>
-        /// Returns <see cref="Inclusions.Outside"/> (0) if false, <see cref="Inclusions.Inside"/> (+1) if true, <see cref="Inclusions.Boundary"/> (-1) if the point is on a polygon boundary.
+        /// Returns <see cref="Inclusions.Outside" /> (0) if false, <see cref="Inclusions.Inside" /> (+1) if true, <see cref="Inclusions.Boundary" /> (-1) if the point is on a polygon boundary.
         /// </returns>
         /// <acknowledgment>
         /// Adapted from Clipper library: http://www.angusj.com/delphi/clipper.php

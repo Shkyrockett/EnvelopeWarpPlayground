@@ -10,6 +10,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
@@ -22,6 +23,7 @@ namespace EnvelopeWarpPlayground
     /// The polygon contour class.
     /// </summary>
     /// <seealso cref="IGeometry{T}" />
+    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public class PolygonContour
         : IGeometry<PointF>
     {
@@ -71,20 +73,20 @@ namespace EnvelopeWarpPlayground
         public PointF this[int index] { get { return Points[index]; } set { Points[index] = value; } }
 
         /// <summary>
-        /// Gets or sets the <see cref="PointF"/> at the specified index.
+        /// Gets or sets the <see cref="PointF" /> at the specified index.
         /// </summary>
         /// <value>
-        /// The <see cref="PointF"/>.
+        /// The <see cref="PointF" />.
         /// </value>
         /// <param name="index">The index.</param>
         /// <returns></returns>
         public PointF this[Index index] { get { return Points[index]; } set { Points[index] = value; } }
 
         /// <summary>
-        /// Gets the <see cref="Span{PointF}"/> with the specified range.
+        /// Gets the <see cref="Span{PointF}" /> with the specified range.
         /// </summary>
         /// <value>
-        /// The <see cref="Span{PointF}"/>.
+        /// The <see cref="Span{PointF}" />.
         /// </value>
         /// <param name="range">The range.</param>
         /// <returns></returns>
@@ -120,9 +122,6 @@ namespace EnvelopeWarpPlayground
         /// Add Point.
         /// </summary>
         /// <param name="point">The <paramref name="point" />.</param>
-        /// <returns>
-        /// The <see cref="PolygonContour" />.
-        /// </returns>
         public void Add(PointF point)
         {
             Points.Add(point);
@@ -300,6 +299,12 @@ namespace EnvelopeWarpPlayground
             var sep = ',';
             return $"{nameof(PolygonContour)}{{{string.Join(sep.ToString(), Points.Select(x => x.ToString()))}}}";
         }
+
+        /// <summary>
+        /// Gets the debugger display.
+        /// </summary>
+        /// <returns></returns>
+        private string GetDebuggerDisplay() => ToString();
         #endregion Methods
     }
 }

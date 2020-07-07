@@ -16,6 +16,7 @@ namespace EnvelopeWarpPlayground
     /// <summary>
     /// Interface for Envelopes.
     /// </summary>
+    /// <seealso cref="IGeometry{T}" />
     public interface IEnvelope
         : IGeometry<PointF>
     {

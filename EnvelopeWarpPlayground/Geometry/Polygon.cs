@@ -10,6 +10,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace EnvelopeWarpPlayground
 {
@@ -17,6 +18,7 @@ namespace EnvelopeWarpPlayground
     /// The polygon class.
     /// </summary>
     /// <seealso cref="IGeometry{T}" />
+    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public class Polygon
         : IGeometry<PolygonContour>
     {
@@ -39,30 +41,30 @@ namespace EnvelopeWarpPlayground
         #endregion Properties
 
         /// <summary>
-        /// Gets or sets the <see cref="PolygonContour"/> at the specified index.
+        /// Gets or sets the <see cref="PolygonContour" /> at the specified index.
         /// </summary>
         /// <value>
-        /// The <see cref="PolygonContour"/>.
+        /// The <see cref="PolygonContour" />.
         /// </value>
         /// <param name="index">The index.</param>
         /// <returns></returns>
         public PolygonContour this[int index] { get { return Contours[index]; } set { Contours[index] = value; } }
 
         /// <summary>
-        /// Gets or sets the <see cref="PolygonContour"/> at the specified index.
+        /// Gets or sets the <see cref="PolygonContour" /> at the specified index.
         /// </summary>
         /// <value>
-        /// The <see cref="PolygonContour"/>.
+        /// The <see cref="PolygonContour" />.
         /// </value>
         /// <param name="index">The index.</param>
         /// <returns></returns>
         public PolygonContour this[Index index] { get { return Contours[index]; } set { Contours[index] = value; } }
 
         /// <summary>
-        /// Gets the <see cref="Span{PolygonContour}"/> with the specified range.
+        /// Gets the <see cref="Span{PolygonContour}" /> with the specified range.
         /// </summary>
         /// <value>
-        /// The <see cref="Span{PolygonContour}"/>.
+        /// The <see cref="Span{PolygonContour}" />.
         /// </value>
         /// <param name="range">The range.</param>
         /// <returns></returns>
@@ -73,5 +75,11 @@ namespace EnvelopeWarpPlayground
         /// </summary>
         /// <returns></returns>
         public IEnumerator<PolygonContour> GetEnumerator() => Contours.GetEnumerator();
+
+        /// <summary>
+        /// Gets the debugger display.
+        /// </summary>
+        /// <returns></returns>
+        private string GetDebuggerDisplay() => ToString();
     }
 }

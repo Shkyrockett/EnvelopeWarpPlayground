@@ -14,7 +14,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 
-namespace EnvelopeWarpPlayground
+namespace EnvelopeWarpLibrary
 {
     /// <summary>
     /// The control point class.

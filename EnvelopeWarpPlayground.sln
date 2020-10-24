@@ -5,10 +5,12 @@ VisualStudioVersion = 16.0.29021.104
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EnvelopeWarpPlayground", "EnvelopeWarpPlayground\EnvelopeWarpPlayground.csproj", "{23112A46-7EA8-447D-9D63-02E62347C364}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{07D9F071-9BBB-4086-B4B7-319839C302CA}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{966C41FA-7E2A-4DF1-BAC0-E0561377C8DD}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnvelopeWarpLibrary", "EnvelopeWarpLibrary\EnvelopeWarpLibrary.csproj", "{CADAE63B-2486-425C-8F1D-3280CC61C1A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,6 +22,10 @@ Global
 		{23112A46-7EA8-447D-9D63-02E62347C364}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23112A46-7EA8-447D-9D63-02E62347C364}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23112A46-7EA8-447D-9D63-02E62347C364}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CADAE63B-2486-425C-8F1D-3280CC61C1A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CADAE63B-2486-425C-8F1D-3280CC61C1A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CADAE63B-2486-425C-8F1D-3280CC61C1A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CADAE63B-2486-425C-8F1D-3280CC61C1A2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

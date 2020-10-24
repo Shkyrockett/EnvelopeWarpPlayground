@@ -9,9 +9,8 @@
 // <remarks></remarks>
 
 using System.Drawing;
-using System.Drawing.Drawing2D;
 
-namespace EnvelopeWarpPlayground
+namespace EnvelopeWarpLibrary
 {
     /// <summary>
     /// Interface for Envelopes.
@@ -27,11 +26,5 @@ namespace EnvelopeWarpPlayground
         /// <param name="point">The point.</param>
         /// <returns></returns>
         PointF ProcessPoint(RectangleF bounds, PointF point);
-
-        /// <summary>
-        /// Converts to graphics path.
-        /// </summary>
-        /// <returns></returns>
-        GraphicsPath ToGraphicsPath();
     }
 }

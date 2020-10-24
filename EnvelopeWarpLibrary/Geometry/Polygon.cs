@@ -11,8 +11,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
-namespace EnvelopeWarpPlayground
+namespace EnvelopeWarpLibrary
 {
     /// <summary>
     /// The polygon class.
@@ -40,6 +41,7 @@ namespace EnvelopeWarpPlayground
         public int Count => Contours.Count;
         #endregion Properties
 
+        #region Indexers
         /// <summary>
         /// Gets or sets the <see cref="PolygonContour" /> at the specified index.
         /// </summary>
@@ -69,7 +71,9 @@ namespace EnvelopeWarpPlayground
         /// <param name="range">The range.</param>
         /// <returns></returns>
         public Span<PolygonContour> this[Range range] => Contours.ToArray()[range];
+        #endregion
 
+        #region Methods
         /// <summary>
         /// Gets the enumerator.
         /// </summary>
@@ -77,9 +81,32 @@ namespace EnvelopeWarpPlayground
         public IEnumerator<PolygonContour> GetEnumerator() => Contours.GetEnumerator();
 
         /// <summary>
+        /// Creates a string representation of this <see cref="PolygonContour" /> struct based on the format string
+        /// and IFormatProvider passed in.
+        /// If the provider is null, the CurrentCulture is used.
+        /// See the documentation for IFormattable for more information.
+        /// </summary>
+        /// <param name="format">The format.</param>
+        /// <param name="provider">The provider.</param>
+        /// <returns>
+        /// A <see cref="string" /> representation of this object.
+        /// </returns>
+        public string ToString(string format, IFormatProvider provider)
+        {
+            if (this is null)
+            {
+                return nameof(Polygon);
+            }
+
+            var sep = ',';
+            return $"{nameof(Polygon)}{{{string.Join(sep.ToString(), Contours.Select(x => x.ToString()))}}}";
+        }
+
+        /// <summary>
         /// Gets the debugger display.
         /// </summary>
         /// <returns></returns>
         private string GetDebuggerDisplay() => ToString();
+        #endregion
     }
 }

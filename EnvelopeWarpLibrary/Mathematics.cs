@@ -14,12 +14,12 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 using static System.MathF;
 
-namespace EnvelopeWarpPlayground
+namespace EnvelopeWarpLibrary
 {
     /// <summary>
     /// The Mathematics class.
     /// </summary>
-    internal static class Mathematics
+    public static class Mathematics
     {
         #region Constants
         /// <summary>
@@ -1168,7 +1168,7 @@ namespace EnvelopeWarpPlayground
         /// <param name="format">The format.</param>
         /// <param name="provider">The provider.</param>
         /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
+        /// A <see cref="string" /> that represents this instance.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ToString(this PointF point, string format, IFormatProvider provider) => $"{{X={point.X.ToString(format, provider)}, Y={point.Y.ToString(format, provider)}}}";
@@ -1180,7 +1180,7 @@ namespace EnvelopeWarpPlayground
         /// <param name="format">The format.</param>
         /// <param name="provider">The provider.</param>
         /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
+        /// A <see cref="string" /> that represents this instance.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ToString(this Point point, string format, IFormatProvider provider) => $"{{X={point.X.ToString(format, provider)}, Y={point.Y.ToString(format, provider)}}}";

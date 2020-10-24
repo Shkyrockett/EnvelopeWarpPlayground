@@ -17,7 +17,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace EnvelopeWarpPlayground
+namespace EnvelopeWarpLibrary
 {
     /// <summary>
     /// The polygon contour class.

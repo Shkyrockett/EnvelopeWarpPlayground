@@ -12,14 +12,13 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace EnvelopeWarpPlayground
+namespace EnvelopeWarpLibrary
 {
     /// <summary>
     /// The IGeometry interface.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public interface IGeometry<T>
-    //where T : IEquatable<T>
     {
         #region Properties
         /// <summary>

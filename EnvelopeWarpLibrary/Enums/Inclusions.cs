@@ -1,4 +1,4 @@
-﻿// <copyright file="Mathematics.cs">
+﻿// <copyright file="Inclusions.cs">
 //     Copyright © 2019 - 2020 Shkyrockett. All rights reserved.
 // </copyright>
 // <author id="shkyrockett">Shkyrockett</author>
@@ -8,7 +8,7 @@
 // <summary></summary>
 // <remarks></remarks>
 
-namespace EnvelopeWarpPlayground
+namespace EnvelopeWarpLibrary
 {
     /// <summary>
     /// Enumeration of the inclusion of a point within a shape.

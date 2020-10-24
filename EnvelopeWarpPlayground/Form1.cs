@@ -15,7 +15,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
-using static EnvelopeWarpPlayground.Mathematics;
+using  EnvelopeWarpLibrary;
+using static EnvelopeWarpLibrary.Mathematics;
 
 namespace EnvelopeWarpPlayground
 {

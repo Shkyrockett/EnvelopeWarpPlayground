@@ -11,14 +11,15 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
+using System.Numerics;
 
 namespace EnvelopeWarpLibrary
 {
     /// <summary>
     /// The IGeometry interface.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface IGeometry<T>
+    public interface IGeometry
     {
         #region Properties
         /// <summary>
@@ -30,6 +31,69 @@ namespace EnvelopeWarpLibrary
         int Count { get; }
         #endregion Properties
 
+        #region Mutators
+        /// <summary>
+        /// Clears this instance.
+        /// </summary>
+        void Clear();
+
+        /// <summary>
+        /// Removes the specified point.
+        /// </summary>
+        /// <param name="point">The point.</param>
+        void Remove(PointF point);
+        #endregion
+
+        #region Methods
+        /// <summary>
+        /// Translates the specified delta.
+        /// </summary>
+        /// <param name="delta">The delta.</param>
+        /// <returns></returns>
+        IGeometry Translate(Vector2 delta);
+
+        /// <summary>
+        /// Queries whether the shape includes the specified point in it's geometry.
+        /// </summary>
+        /// <param name="point">The point.</param>
+        /// <returns></returns>
+        bool Includes(PointF point);
+
+        /// <summary>
+        /// Creates a string representation of this <see cref="IGeometry" /> struct based on the format string and IFormatProvider passed in.
+        /// If the provider is null, the CurrentCulture is used.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="string" /> representation of this object.
+        /// </returns>
+        public string? ToString() => ToString("R" /* format string */, CultureInfo.InvariantCulture /* format provider */);
+
+        /// <summary>
+        /// Creates a string representation of this <see cref="IGeometry" /> struct based on the format string and IFormatProvider passed in.
+        /// If the provider is null, the CurrentCulture is used.
+        /// </summary>
+        /// <param name="formatProvider">The format provider.</param>
+        /// <returns></returns>
+        public string? ToString(IFormatProvider formatProvider) => ToString("R" /* format string */, CultureInfo.InvariantCulture /* format provider */);
+
+        /// <summary>
+        /// Creates a string representation of this <see cref="IGeometry" /> struct based on the format string and IFormatProvider passed in.
+        /// If the provider is null, the CurrentCulture is used.
+        /// </summary>
+        /// <param name="format">The format.</param>
+        /// <param name="formatProvider">The format provider.</param>
+        /// <returns></returns>
+        string? ToString(string format, IFormatProvider formatProvider);
+        #endregion
+    }
+
+    /// <summary>
+    /// The IGeometry interface.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IGeometry<T>
+        : IGeometry
+    {
         #region Enumeration
         /// <summary>
         /// Gets or sets the <see cref="PointF" /> at the specified index.
@@ -58,7 +122,7 @@ namespace EnvelopeWarpLibrary
         IEnumerator<T> GetEnumerator();
         #endregion Enumeration
 
-        #region Methods
+        #region Mutators
         /// <summary>
         /// Adds the specified item.
         /// </summary>
@@ -77,11 +141,6 @@ namespace EnvelopeWarpLibrary
         /// </summary>
         /// <param name="index">The index.</param>
         void RemoveAt(int index) { }
-
-        /// <summary>
-        /// Clears this instance.
-        /// </summary>
-        void Clear() { }
         #endregion Methods
     }
 }

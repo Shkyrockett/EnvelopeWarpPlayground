@@ -2,4 +2,4 @@
 
 This is an experiment with warping polygons using envelope deformation in c# .NET 5 Windows Forms.
 
-![Screenshot](Screenshot.png)
+![Screen shot](screenshot.png)

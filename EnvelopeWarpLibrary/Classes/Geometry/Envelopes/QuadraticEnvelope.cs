@@ -1,4 +1,4 @@
-﻿// <copyright file="LinearEnvelope.cs">
+﻿// <copyright file="QuadraticEnvelope.cs">
 //     Copyright © 2019 - 2020 Shkyrockett. All rights reserved.
 // </copyright>
 // <author id="shkyrockett">Shkyrockett</author>
@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace EnvelopeWarpLibrary
@@ -23,43 +24,54 @@ namespace EnvelopeWarpLibrary
     /// <seealso cref="IEnvelope" />
     /// <seealso cref="IEquatable{T}" />
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
-    public struct LinearEnvelope
-        : IEnvelope, IEquatable<LinearEnvelope>
+    public struct QuadraticEnvelope
+        : IEnvelope, IEquatable<QuadraticEnvelope>
     {
         #region Constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="LinearEnvelope" /> struct.
+        /// Initializes a new instance of the <see cref="QuadraticEnvelope" /> struct.
         /// </summary>
         /// <param name="rectangle">The rectangle.</param>
-        public LinearEnvelope(RectangleF rectangle)
+        public QuadraticEnvelope(RectangleF rectangle)
             : this(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height)
         { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LinearEnvelope" /> class.
+        /// Initializes a new instance of the <see cref="QuadraticEnvelope" /> class.
         /// </summary>
         /// <param name="x">The x.</param>
         /// <param name="y">The y.</param>
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
-        public LinearEnvelope(float x, float y, float width, float height)
+        public QuadraticEnvelope(float x, float y, float width, float height)
         {
+            var w2 = width * (1f / 2f);
+            var h2 = height * (1f / 2f);
+
             ControlPointTopLeft = new PointF(x, y);
+            ControlHandleTop = new PointF(x + w2, y);
             ControlPointTopRight = new PointF(x + width, y);
+            ControlHandleRight = new PointF(x + width, y + h2);
             ControlPointBottomLeft = new PointF(x, y + height);
+            ControlHandleLeft = new PointF(x, y + h2);
             ControlPointBottomRight = new PointF(x + width, y + height);
+            ControlHandleBottom = new PointF(x + w2, y + height);
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LinearEnvelope" /> struct.
+        /// Initializes a new instance of the <see cref="QuadraticEnvelope" /> struct.
         /// </summary>
         /// <param name="controlPointTopLeft">The control point top left.</param>
+        /// <param name="controlHandleTop">The control handle top.</param>
         /// <param name="controlPointTopRight">The control point top right.</param>
+        /// <param name="controlHandleRight">The control handle right.</param>
         /// <param name="controlPointBottomLeft">The control point bottom left.</param>
+        /// <param name="controlHandleLeft">The control handle left.</param>
         /// <param name="controlPointBottomRight">The control point bottom right.</param>
-        public LinearEnvelope(PointF controlPointTopLeft, PointF controlPointTopRight, PointF controlPointBottomLeft, PointF controlPointBottomRight)
+        /// <param name="controlHandleBottom">The control handle bottom.</param>
+        public QuadraticEnvelope(PointF controlPointTopLeft, PointF controlHandleTop, PointF controlPointTopRight, PointF controlHandleRight, PointF controlPointBottomLeft, PointF controlHandleLeft, PointF controlPointBottomRight, PointF controlHandleBottom)
         {
-            (ControlPointTopLeft, ControlPointTopRight, ControlPointBottomLeft, ControlPointBottomRight) = (controlPointTopLeft, controlPointTopRight, controlPointBottomLeft, controlPointBottomRight);
+            (ControlPointTopLeft, ControlHandleTop, ControlPointTopRight, ControlHandleRight, ControlPointBottomLeft, ControlHandleLeft, ControlPointBottomRight, ControlHandleBottom) = (controlPointTopLeft, controlHandleTop, controlPointTopRight, controlHandleRight, controlPointBottomLeft, controlHandleLeft, controlPointBottomRight, controlHandleBottom);
         }
         #endregion Constructors
 
@@ -73,12 +85,28 @@ namespace EnvelopeWarpLibrary
         public PointF ControlPointTopLeft { get; set; }
 
         /// <summary>
+        /// Gets or sets the control handle top.
+        /// </summary>
+        /// <value>
+        /// The control handle top.
+        /// </value>
+        public PointF ControlHandleTop { get; set; }
+
+        /// <summary>
         /// Gets or sets the control point top right.
         /// </summary>
         /// <value>
         /// The control point top right.
         /// </value>
         public PointF ControlPointTopRight { get; set; }
+
+        /// <summary>
+        /// Gets or sets the control handle right.
+        /// </summary>
+        /// <value>
+        /// The control handle right.
+        /// </value>
+        public PointF ControlHandleRight { get; set; }
 
         /// <summary>
         /// Gets or sets the control point bottom left.
@@ -89,6 +117,14 @@ namespace EnvelopeWarpLibrary
         public PointF ControlPointBottomLeft { get; set; }
 
         /// <summary>
+        /// Gets or sets the control handle left.
+        /// </summary>
+        /// <value>
+        /// The control handle left.
+        /// </value>
+        public PointF ControlHandleLeft { get; set; }
+
+        /// <summary>
         /// Gets or sets the control point bottom right.
         /// </summary>
         /// <value>
@@ -97,12 +133,20 @@ namespace EnvelopeWarpLibrary
         public PointF ControlPointBottomRight { get; set; }
 
         /// <summary>
+        /// Gets or sets the control handle bottom.
+        /// </summary>
+        /// <value>
+        /// The control handle bottom.
+        /// </value>
+        public PointF ControlHandleBottom { get; set; }
+
+        /// <summary>
         /// Gets the count.
         /// </summary>
         /// <value>
         /// The count.
         /// </value>
-        public int Count => 4;
+        public int Count => 8;
         #endregion Properties
 
         #region Enumeration
@@ -124,9 +168,13 @@ namespace EnvelopeWarpLibrary
                 return index switch
                 {
                     0 => ControlPointTopLeft,
-                    1 => ControlPointTopRight,
-                    2 => ControlPointBottomLeft,
-                    3 => ControlPointBottomRight,
+                    1 => ControlHandleTop,
+                    2 => ControlPointTopRight,
+                    3 => ControlHandleRight,
+                    4 => ControlPointBottomLeft,
+                    5 => ControlHandleLeft,
+                    6 => ControlPointBottomRight,
+                    7 => ControlHandleBottom,
                     _ => throw new IndexOutOfRangeException(),
                 };
             }
@@ -138,13 +186,25 @@ namespace EnvelopeWarpLibrary
                         ControlPointTopLeft = value;
                         break;
                     case 1:
-                        ControlPointTopRight = value;
+                        ControlHandleTop = value;
                         break;
                     case 2:
-                        ControlPointBottomLeft = value;
+                        ControlPointTopRight = value;
                         break;
                     case 3:
+                        ControlHandleRight = value;
+                        break;
+                    case 4:
+                        ControlPointBottomLeft = value;
+                        break;
+                    case 5:
+                        ControlHandleLeft = value;
+                        break;
+                    case 6:
                         ControlPointBottomRight = value;
+                        break;
+                    case 7:
+                        ControlHandleBottom = value;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -171,9 +231,13 @@ namespace EnvelopeWarpLibrary
         public IEnumerator<PointF> GetEnumerator()
         {
             yield return ControlPointTopLeft;
+            yield return ControlHandleTop;
             yield return ControlPointTopRight;
+            yield return ControlHandleRight;
             yield return ControlPointBottomLeft;
+            yield return ControlHandleLeft;
             yield return ControlPointBottomRight;
+            yield return ControlHandleBottom;
         }
         #endregion Enumeration
 
@@ -186,7 +250,7 @@ namespace EnvelopeWarpLibrary
         /// <returns>
         /// The <see cref="bool" />.
         /// </returns>
-        public static bool operator ==(LinearEnvelope left, LinearEnvelope right) => left.Equals(right);
+        public static bool operator ==(QuadraticEnvelope left, QuadraticEnvelope right) => left.Equals(right);
 
         /// <summary>
         /// The operator !=.
@@ -196,7 +260,7 @@ namespace EnvelopeWarpLibrary
         /// <returns>
         /// The <see cref="bool" />.
         /// </returns>
-        public static bool operator !=(LinearEnvelope left, LinearEnvelope right) => !(left == right);
+        public static bool operator !=(QuadraticEnvelope left, QuadraticEnvelope right) => !(left == right);
         #endregion Operators
 
         #region Methods
@@ -207,11 +271,41 @@ namespace EnvelopeWarpLibrary
         /// <param name="point">The point.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public PointF ProcessPoint(RectangleF bounds, PointF point) => Mathematics.LinearEnvelopeOptimized(
+        public PointF ProcessPoint(RectangleF bounds, PointF point) => Mathematics.QuadraticBezierEnvelopeOptimized(
             point,
             bounds,
-            ControlPointTopLeft, ControlPointTopRight, ControlPointBottomRight, ControlPointBottomLeft
+            ControlPointTopLeft, ControlHandleTop, ControlPointTopRight, ControlHandleRight,
+            ControlPointBottomRight, ControlHandleBottom, ControlPointBottomLeft, ControlHandleLeft
         );
+
+        /// <summary>
+        /// Clears this instance.
+        /// </summary>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public void Clear() => throw new NotImplementedException();
+
+        /// <summary>
+        /// Removes the specified point.
+        /// </summary>
+        /// <param name="point">The point.</param>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public void Remove(PointF point) => throw new NotImplementedException();
+
+        /// <summary>
+        /// Translates the specified delta.
+        /// </summary>
+        /// <param name="delta">The delta.</param>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public IGeometry Translate(Vector2 delta) => throw new NotImplementedException();
+
+        /// <summary>
+        /// Queries whether the shape includes the specified point in it's geometry.
+        /// </summary>
+        /// <param name="point">The point.</param>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public bool Includes(PointF point) => throw new NotImplementedException();
 
         /// <summary>
         /// Get the hash code.
@@ -219,7 +313,7 @@ namespace EnvelopeWarpLibrary
         /// <returns>
         /// The <see cref="int" />.
         /// </returns>
-        public override int GetHashCode() => HashCode.Combine(ControlPointTopLeft, ControlPointTopRight, ControlPointBottomLeft, ControlPointBottomRight);
+        public override int GetHashCode() => HashCode.Combine(ControlPointTopLeft, ControlHandleTop, ControlPointTopRight, ControlHandleRight, ControlPointBottomLeft, ControlHandleLeft, ControlPointBottomRight, ControlHandleBottom);
 
         /// <summary>
         /// The equals.
@@ -228,7 +322,7 @@ namespace EnvelopeWarpLibrary
         /// <returns>
         /// The <see cref="bool" />.
         /// </returns>
-        public override bool Equals(object obj) => obj is LinearEnvelope envelope && Equals(envelope);
+        public override bool Equals(object? obj) => obj is QuadraticEnvelope envelope && Equals(envelope);
 
         /// <summary>
         /// The equals.
@@ -237,11 +331,15 @@ namespace EnvelopeWarpLibrary
         /// <returns>
         /// The <see cref="bool" />.
         /// </returns>
-        public bool Equals(LinearEnvelope envelope) =>
+        public bool Equals(QuadraticEnvelope envelope) =>
             ControlPointTopLeft.Equals(envelope.ControlPointTopLeft)
+            && ControlHandleTop.Equals(envelope.ControlHandleTop)
             && ControlPointTopRight.Equals(envelope.ControlPointTopRight)
+            && ControlHandleRight.Equals(envelope.ControlHandleRight)
             && ControlPointBottomLeft.Equals(envelope.ControlPointBottomLeft)
-            && ControlPointBottomRight.Equals(envelope.ControlPointBottomRight);
+            && ControlHandleLeft.Equals(envelope.ControlHandleLeft)
+            && ControlPointBottomRight.Equals(envelope.ControlPointBottomRight)
+            && ControlHandleBottom.Equals(envelope.ControlHandleBottom);
 
         /// <summary>
         /// The equals.
@@ -251,7 +349,7 @@ namespace EnvelopeWarpLibrary
         /// <returns>
         /// The <see cref="bool" />.
         /// </returns>
-        public static bool Equals(LinearEnvelope a, LinearEnvelope b) => a.Equals(b);
+        public static bool Equals(QuadraticEnvelope a, QuadraticEnvelope b) => a.Equals(b);
 
         /// <summary>
         /// The compare.
@@ -261,10 +359,10 @@ namespace EnvelopeWarpLibrary
         /// <returns>
         /// The <see cref="bool" />.
         /// </returns>
-        public static bool Compare(LinearEnvelope a, LinearEnvelope b) => a.Equals(b);
+        public static bool Compare(QuadraticEnvelope a, QuadraticEnvelope b) => a.Equals(b);
 
         /// <summary>
-        /// Creates a human-readable string that represents this <see cref="LinearEnvelope" />.
+        /// Creates a human-readable string that represents this <see cref="QuadraticEnvelope" />.
         /// </summary>
         /// <returns>
         /// A <see cref="string" /> that represents this instance.
@@ -272,7 +370,7 @@ namespace EnvelopeWarpLibrary
         public override string ToString() => ToString(null /* format string */, CultureInfo.InvariantCulture /* format provider */);
 
         /// <summary>
-        /// Creates a <see cref="string" /> representation of this <see cref="LinearEnvelope" /> struct based on the IFormatProvider
+        /// Creates a <see cref="string" /> representation of this <see cref="QuadraticEnvelope" /> struct based on the IFormatProvider
         /// passed in.  If the provider is null, the CurrentCulture is used.
         /// </summary>
         /// <param name="provider">The <paramref name="provider" />.</param>
@@ -282,7 +380,7 @@ namespace EnvelopeWarpLibrary
         public string ToString(IFormatProvider provider) => ToString(null /* format string */, provider);
 
         /// <summary>
-        /// Creates a <see cref="string" /> representation of this <see cref="LinearEnvelope" /> class based on the format string
+        /// Creates a <see cref="string" /> representation of this <see cref="QuadraticEnvelope" /> class based on the format string
         /// and IFormatProvider passed in.
         /// If the provider is null, the CurrentCulture is used.
         /// See the documentation for IFormattable for more information.
@@ -292,13 +390,17 @@ namespace EnvelopeWarpLibrary
         /// <returns>
         /// A <see cref="string" /> representation of this object.
         /// </returns>
-        public string ToString(string format, IFormatProvider provider)
+        public string ToString(string? format, IFormatProvider provider)
         {
             var sep = ',';
-            return $"{nameof(LinearEnvelope)}{{{nameof(ControlPointTopLeft)}={ControlPointTopLeft.ToString(format, provider)}" +
+            return $"{nameof(QuadraticEnvelope)}{{{nameof(ControlPointTopLeft)}={ControlPointTopLeft.ToString(format, provider)}" +
+                $"{sep}{nameof(ControlHandleTop)}={ControlHandleTop.ToString(format, provider)}" +
                 $"{sep}{nameof(ControlPointTopRight)}={ControlPointTopRight.ToString(format, provider)}" +
+                $"{sep}{nameof(ControlHandleRight)}={ControlHandleRight.ToString(format, provider)}" +
                 $"{sep}{nameof(ControlPointBottomLeft)}={ControlPointBottomLeft.ToString(format, provider)}" +
-                $"{sep}{nameof(ControlPointBottomRight)}={ControlPointBottomRight.ToString(format, provider)}}}";
+                $"{sep}{nameof(ControlHandleLeft)}={ControlHandleLeft.ToString(format, provider)}" +
+                $"{sep}{nameof(ControlPointBottomRight)}={ControlPointBottomRight.ToString(format, provider)}" +
+                $"{sep}{nameof(ControlHandleBottom)}={ControlHandleBottom.ToString(format, provider)}}}";
         }
 
         /// <summary>

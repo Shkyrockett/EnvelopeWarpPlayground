@@ -8,9 +8,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{966C41FA-7E2A-4DF1-BAC0-E0561377C8DD}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		LICENSE.md = LICENSE.md
+		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnvelopeWarpLibrary", "EnvelopeWarpLibrary\EnvelopeWarpLibrary.csproj", "{CADAE63B-2486-425C-8F1D-3280CC61C1A2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EnvelopeWarpLibrary", "EnvelopeWarpLibrary\EnvelopeWarpLibrary.csproj", "{CADAE63B-2486-425C-8F1D-3280CC61C1A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

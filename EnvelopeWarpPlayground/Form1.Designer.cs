@@ -22,17 +22,17 @@ namespace EnvelopeWarpPlayground
         private System.ComponentModel.IContainer components = null;
 
         /// <summary>
-        /// The canvas.
+        /// The canvas control
         /// </summary>
-        private System.Windows.Forms.PictureBox picCanvas;
+        private CanvasControl canvasControl;
 
         /// <summary>
-        /// The button reset pan
+        /// The pan reset button
         /// </summary>
         private System.Windows.Forms.Button buttonResetPan;
 
         /// <summary>
-        /// The button reset scale
+        /// The reset scale button
         /// </summary>
         private System.Windows.Forms.Button buttonResetScale;
 
@@ -57,28 +57,26 @@ namespace EnvelopeWarpPlayground
         /// </summary>
         private void InitializeComponent()
         {
-            this.picCanvas = new System.Windows.Forms.PictureBox();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            this.canvasControl = new EnvelopeWarpPlayground.CanvasControl();
             this.buttonResetPan = new System.Windows.Forms.Button();
             this.buttonResetScale = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.picCanvas)).BeginInit();
             this.SuspendLayout();
             // 
-            // picCanvas
+            // canvasControl
             // 
-            this.picCanvas.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.canvasControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.picCanvas.BackColor = System.Drawing.SystemColors.Window;
-            this.picCanvas.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.picCanvas.Location = new System.Drawing.Point(14, 14);
-            this.picCanvas.Name = "picCanvas";
-            this.picCanvas.Size = new System.Drawing.Size(824, 491);
-            this.picCanvas.TabIndex = 0;
-            this.picCanvas.TabStop = false;
-            this.picCanvas.Paint += new System.Windows.Forms.PaintEventHandler(this.PicCanvas_Paint);
-            this.picCanvas.MouseDown += new System.Windows.Forms.MouseEventHandler(this.PicCanvas_MouseDown);
-            this.picCanvas.MouseMove += new System.Windows.Forms.MouseEventHandler(this.PicCanvas_MouseMove_NotDrawing);
-            this.picCanvas.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.PicCanvas_MouseWheel);
+            this.canvasControl.GhostPolygonPen = null;
+            this.canvasControl.HandleRadius = 3;
+            this.canvasControl.Location = new System.Drawing.Point(14, 14);
+            this.canvasControl.Name = "canvasControl";
+            this.canvasControl.PanPoint = ((System.Drawing.PointF)(resources.GetObject("canvasControl.PanPoint")));
+            this.canvasControl.Scale = 1F;
+            this.canvasControl.Size = new System.Drawing.Size(824, 491);
+            this.canvasControl.TabIndex = 0;
+            this.canvasControl.TabStop = false;
             // 
             // buttonResetPan
             // 
@@ -109,11 +107,10 @@ namespace EnvelopeWarpPlayground
             this.ClientSize = new System.Drawing.Size(933, 519);
             this.Controls.Add(this.buttonResetScale);
             this.Controls.Add(this.buttonResetPan);
-            this.Controls.Add(this.picCanvas);
+            this.Controls.Add(this.canvasControl);
             this.Name = "Form1";
-            this.Text = "Envelope Warp";
+            this.Text = "Envelope Warp Playground";
             this.Load += new System.EventHandler(this.Form1_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.picCanvas)).EndInit();
             this.ResumeLayout(false);
 
         }

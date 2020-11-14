@@ -1,4 +1,4 @@
-﻿// <copyright file="CubicEnvelope.cs">
+﻿// <copyright file="LinearEnvelope.cs">
 //     Copyright © 2019 - 2020 Shkyrockett. All rights reserved.
 // </copyright>
 // <author id="shkyrockett">Shkyrockett</author>
@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace EnvelopeWarpLibrary
@@ -23,73 +24,41 @@ namespace EnvelopeWarpLibrary
     /// <seealso cref="IEnvelope" />
     /// <seealso cref="IEquatable{T}" />
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
-    public struct CubicEnvelope
-        : IEnvelope, IEquatable<CubicEnvelope>
+    public struct LinearEnvelope
+        : IEnvelope, IEquatable<LinearEnvelope>
     {
         #region Constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="CubicEnvelope" /> struct.
+        /// Initializes a new instance of the <see cref="LinearEnvelope" /> struct.
         /// </summary>
         /// <param name="rectangle">The rectangle.</param>
-        public CubicEnvelope(RectangleF rectangle)
+        public LinearEnvelope(RectangleF rectangle)
             : this(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height)
         { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CubicEnvelope" /> class.
+        /// Initializes a new instance of the <see cref="LinearEnvelope" /> class.
         /// </summary>
         /// <param name="x">The x.</param>
         /// <param name="y">The y.</param>
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
-        public CubicEnvelope(float x, float y, float width, float height)
+        public LinearEnvelope(float x, float y, float width, float height)
         {
-            var w3 = width * (1f / 3f);
-            var h3 = height * (1f / 3f);
-
-            //  Top Left
-            ControlPointTopLeft = new CubicControlPoint
-            {
-                Point = new PointF(x, y),
-                AnchorA = new PointF(w3, 0f),
-                AnchorB = new PointF(0f, h3)
-            };
-
-            //  Top Right
-            ControlPointTopRight = new CubicControlPoint
-            {
-                Point = new PointF(x + width, y),
-                AnchorA = new PointF(-w3, 0f),
-                AnchorB = new PointF(0f, h3)
-            };
-
-            //  Bottom Left
-            ControlPointBottomLeft = new CubicControlPoint
-            {
-                Point = new PointF(x, y + height),
-                AnchorA = new PointF(w3, 0f),
-                AnchorB = new PointF(0f, -h3)
-            };
-
-            //  Bottom Right
-            ControlPointBottomRight = new CubicControlPoint
-            {
-                Point = new PointF(x + width, y + height),
-                AnchorA = new PointF(-w3, 0f),
-                AnchorB = new PointF(0f, -h3)
-            };
-
-            //Update();
+            ControlPointTopLeft = new PointF(x, y);
+            ControlPointTopRight = new PointF(x + width, y);
+            ControlPointBottomLeft = new PointF(x, y + height);
+            ControlPointBottomRight = new PointF(x + width, y + height);
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CubicEnvelope" /> struct.
+        /// Initializes a new instance of the <see cref="LinearEnvelope" /> struct.
         /// </summary>
         /// <param name="controlPointTopLeft">The control point top left.</param>
         /// <param name="controlPointTopRight">The control point top right.</param>
         /// <param name="controlPointBottomLeft">The control point bottom left.</param>
         /// <param name="controlPointBottomRight">The control point bottom right.</param>
-        public CubicEnvelope(CubicControlPoint controlPointTopLeft, CubicControlPoint controlPointTopRight, CubicControlPoint controlPointBottomLeft, CubicControlPoint controlPointBottomRight)
+        public LinearEnvelope(PointF controlPointTopLeft, PointF controlPointTopRight, PointF controlPointBottomLeft, PointF controlPointBottomRight)
         {
             (ControlPointTopLeft, ControlPointTopRight, ControlPointBottomLeft, ControlPointBottomRight) = (controlPointTopLeft, controlPointTopRight, controlPointBottomLeft, controlPointBottomRight);
         }
@@ -102,7 +71,7 @@ namespace EnvelopeWarpLibrary
         /// <value>
         /// The control point top left.
         /// </value>
-        public CubicControlPoint ControlPointTopLeft { get; set; }
+        public PointF ControlPointTopLeft { get; set; }
 
         /// <summary>
         /// Gets or sets the control point top right.
@@ -110,7 +79,7 @@ namespace EnvelopeWarpLibrary
         /// <value>
         /// The control point top right.
         /// </value>
-        public CubicControlPoint ControlPointTopRight { get; set; }
+        public PointF ControlPointTopRight { get; set; }
 
         /// <summary>
         /// Gets or sets the control point bottom left.
@@ -118,7 +87,7 @@ namespace EnvelopeWarpLibrary
         /// <value>
         /// The control point bottom left.
         /// </value>
-        public CubicControlPoint ControlPointBottomLeft { get; set; }
+        public PointF ControlPointBottomLeft { get; set; }
 
         /// <summary>
         /// Gets or sets the control point bottom right.
@@ -126,7 +95,7 @@ namespace EnvelopeWarpLibrary
         /// <value>
         /// The control point bottom right.
         /// </value>
-        public CubicControlPoint ControlPointBottomRight { get; set; }
+        public PointF ControlPointBottomRight { get; set; }
 
         /// <summary>
         /// Gets the count.
@@ -134,7 +103,7 @@ namespace EnvelopeWarpLibrary
         /// <value>
         /// The count.
         /// </value>
-        public int Count => 12;
+        public int Count => 4;
         #endregion Properties
 
         #region Enumeration
@@ -155,18 +124,10 @@ namespace EnvelopeWarpLibrary
             {
                 return index switch
                 {
-                    0 => ControlPointTopLeft.Point,
-                    1 => ControlPointTopLeft.AnchorAGlobal,
-                    2 => ControlPointTopRight.AnchorAGlobal,
-                    3 => ControlPointTopRight.Point,
-                    4 => ControlPointTopRight.AnchorBGlobal,
-                    5 => ControlPointBottomLeft.AnchorBGlobal,
-                    6 => ControlPointBottomLeft.Point,
-                    7 => ControlPointBottomLeft.AnchorAGlobal,
-                    8 => ControlPointBottomRight.AnchorAGlobal,
-                    9 => ControlPointBottomRight.Point,
-                    10 => ControlPointBottomRight.AnchorBGlobal,
-                    11 => ControlPointTopLeft.AnchorBGlobal,
+                    0 => ControlPointTopLeft,
+                    1 => ControlPointTopRight,
+                    2 => ControlPointBottomLeft,
+                    3 => ControlPointBottomRight,
                     _ => throw new IndexOutOfRangeException(),
                 };
             }
@@ -175,40 +136,16 @@ namespace EnvelopeWarpLibrary
                 switch (index)
                 {
                     case 0:
-                        ControlPointTopLeft = new CubicControlPoint(value, ControlPointTopLeft.AnchorA, ControlPointTopLeft.AnchorB, false);
+                        ControlPointTopLeft = value;
                         break;
                     case 1:
-                        ControlPointTopLeft = new CubicControlPoint(ControlPointTopLeft.Point, value, ControlPointTopLeft.AnchorBGlobal, true);
+                        ControlPointTopRight = value;
                         break;
                     case 2:
-                        ControlPointTopRight = new CubicControlPoint(ControlPointTopRight.Point, value, ControlPointTopRight.AnchorBGlobal, true);
+                        ControlPointBottomLeft = value;
                         break;
                     case 3:
-                        ControlPointTopRight = new CubicControlPoint(value, ControlPointTopRight.AnchorA, ControlPointTopRight.AnchorB, false);
-                        break;
-                    case 4:
-                        ControlPointTopRight = new CubicControlPoint(ControlPointTopRight.Point, ControlPointTopRight.AnchorAGlobal, value, true);
-                        break;
-                    case 5:
-                        ControlPointBottomLeft = new CubicControlPoint(ControlPointBottomLeft.Point, ControlPointBottomLeft.AnchorAGlobal, value, true);
-                        break;
-                    case 6:
-                        ControlPointBottomLeft = new CubicControlPoint(value, ControlPointBottomLeft.AnchorA, ControlPointBottomLeft.AnchorB, false);
-                        break;
-                    case 7:
-                        ControlPointBottomLeft = new CubicControlPoint(ControlPointBottomLeft.Point, value, ControlPointBottomLeft.AnchorBGlobal, true);
-                        break;
-                    case 8:
-                        ControlPointBottomRight = new CubicControlPoint(ControlPointBottomRight.Point, value, ControlPointBottomRight.AnchorBGlobal, true);
-                        break;
-                    case 9:
-                        ControlPointBottomRight = new CubicControlPoint(value, ControlPointBottomRight.AnchorA, ControlPointBottomRight.AnchorB, false);
-                        break;
-                    case 10:
-                        ControlPointBottomRight = new CubicControlPoint(ControlPointBottomRight.Point, ControlPointBottomRight.AnchorAGlobal, value, true);
-                        break;
-                    case 11:
-                        ControlPointTopLeft = new CubicControlPoint(ControlPointTopLeft.Point, ControlPointTopLeft.AnchorAGlobal, value, true);
+                        ControlPointBottomRight = value;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -234,18 +171,10 @@ namespace EnvelopeWarpLibrary
         /// </returns>
         public IEnumerator<PointF> GetEnumerator()
         {
-            yield return ControlPointTopLeft.Point;
-            yield return ControlPointTopLeft.AnchorAGlobal;
-            yield return ControlPointTopRight.AnchorAGlobal;
-            yield return ControlPointTopRight.Point;
-            yield return ControlPointTopRight.AnchorBGlobal;
-            yield return ControlPointBottomLeft.AnchorBGlobal;
-            yield return ControlPointBottomLeft.Point;
-            yield return ControlPointBottomLeft.AnchorAGlobal;
-            yield return ControlPointBottomRight.AnchorAGlobal;
-            yield return ControlPointBottomRight.Point;
-            yield return ControlPointBottomRight.AnchorBGlobal;
-            yield return ControlPointTopLeft.AnchorBGlobal;
+            yield return ControlPointTopLeft;
+            yield return ControlPointTopRight;
+            yield return ControlPointBottomLeft;
+            yield return ControlPointBottomRight;
         }
         #endregion Enumeration
 
@@ -258,7 +187,7 @@ namespace EnvelopeWarpLibrary
         /// <returns>
         /// The <see cref="bool" />.
         /// </returns>
-        public static bool operator ==(CubicEnvelope left, CubicEnvelope right) => left.Equals(right);
+        public static bool operator ==(LinearEnvelope left, LinearEnvelope right) => left.Equals(right);
 
         /// <summary>
         /// The operator !=.
@@ -268,7 +197,7 @@ namespace EnvelopeWarpLibrary
         /// <returns>
         /// The <see cref="bool" />.
         /// </returns>
-        public static bool operator !=(CubicEnvelope left, CubicEnvelope right) => !(left == right);
+        public static bool operator !=(LinearEnvelope left, LinearEnvelope right) => !(left == right);
         #endregion Operators
 
         #region Methods
@@ -279,14 +208,40 @@ namespace EnvelopeWarpLibrary
         /// <param name="point">The point.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public PointF ProcessPoint(RectangleF bounds, PointF point) => Mathematics.CubicBezierEnvelopeOptimized(
+        public PointF ProcessPoint(RectangleF bounds, PointF point) => Mathematics.LinearEnvelopeOptimized(
             point,
             bounds,
-            ControlPointTopLeft.Point, ControlPointTopLeft.AnchorAGlobal, ControlPointTopLeft.AnchorBGlobal,
-            ControlPointTopRight.Point, ControlPointTopRight.AnchorAGlobal, ControlPointTopRight.AnchorBGlobal,
-            ControlPointBottomRight.Point, ControlPointBottomRight.AnchorAGlobal, ControlPointBottomRight.AnchorBGlobal,
-            ControlPointBottomLeft.Point, ControlPointBottomLeft.AnchorAGlobal, ControlPointBottomLeft.AnchorBGlobal
+            ControlPointTopLeft, ControlPointTopRight, ControlPointBottomRight, ControlPointBottomLeft
         );
+
+        /// <summary>
+        /// Clears this instance.
+        /// </summary>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public void Clear() => throw new NotImplementedException();
+
+        /// <summary>
+        /// Removes the specified point.
+        /// </summary>
+        /// <param name="point">The point.</param>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public void Remove(PointF point) => throw new NotImplementedException();
+
+        /// <summary>
+        /// Translates the specified delta.
+        /// </summary>
+        /// <param name="delta">The delta.</param>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public IGeometry Translate(Vector2 delta) => throw new NotImplementedException();
+
+        /// <summary>
+        /// Queries whether the shape includes the specified point in it's geometry.
+        /// </summary>
+        /// <param name="point">The point.</param>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public bool Includes(PointF point) => throw new NotImplementedException();
 
         /// <summary>
         /// Get the hash code.
@@ -303,7 +258,7 @@ namespace EnvelopeWarpLibrary
         /// <returns>
         /// The <see cref="bool" />.
         /// </returns>
-        public override bool Equals(object obj) => obj is CubicEnvelope envelope && Equals(envelope);
+        public override bool Equals(object? obj) => obj is LinearEnvelope envelope && Equals(envelope);
 
         /// <summary>
         /// The equals.
@@ -312,7 +267,11 @@ namespace EnvelopeWarpLibrary
         /// <returns>
         /// The <see cref="bool" />.
         /// </returns>
-        public bool Equals(CubicEnvelope envelope) => ControlPointTopLeft.Equals(envelope.ControlPointTopLeft) && ControlPointTopRight.Equals(envelope.ControlPointTopRight) && ControlPointBottomLeft.Equals(envelope.ControlPointBottomLeft) && ControlPointBottomRight.Equals(envelope.ControlPointBottomRight);
+        public bool Equals(LinearEnvelope envelope) =>
+            ControlPointTopLeft.Equals(envelope.ControlPointTopLeft)
+            && ControlPointTopRight.Equals(envelope.ControlPointTopRight)
+            && ControlPointBottomLeft.Equals(envelope.ControlPointBottomLeft)
+            && ControlPointBottomRight.Equals(envelope.ControlPointBottomRight);
 
         /// <summary>
         /// The equals.
@@ -322,7 +281,7 @@ namespace EnvelopeWarpLibrary
         /// <returns>
         /// The <see cref="bool" />.
         /// </returns>
-        public static bool Equals(CubicEnvelope a, CubicEnvelope b) => a.Equals(b);
+        public static bool Equals(LinearEnvelope a, LinearEnvelope b) => a.Equals(b);
 
         /// <summary>
         /// The compare.
@@ -332,10 +291,10 @@ namespace EnvelopeWarpLibrary
         /// <returns>
         /// The <see cref="bool" />.
         /// </returns>
-        public static bool Compare(CubicEnvelope a, CubicEnvelope b) => a.Equals(b);
+        public static bool Compare(LinearEnvelope a, LinearEnvelope b) => a.Equals(b);
 
         /// <summary>
-        /// Creates a human-readable string that represents this <see cref="CubicEnvelope" />.
+        /// Creates a human-readable string that represents this <see cref="LinearEnvelope" />.
         /// </summary>
         /// <returns>
         /// A <see cref="string" /> that represents this instance.
@@ -343,7 +302,7 @@ namespace EnvelopeWarpLibrary
         public override string ToString() => ToString(null /* format string */, CultureInfo.InvariantCulture /* format provider */);
 
         /// <summary>
-        /// Creates a <see cref="string" /> representation of this <see cref="CubicEnvelope" /> struct based on the IFormatProvider
+        /// Creates a <see cref="string" /> representation of this <see cref="LinearEnvelope" /> struct based on the IFormatProvider
         /// passed in.  If the provider is null, the CurrentCulture is used.
         /// </summary>
         /// <param name="provider">The <paramref name="provider" />.</param>
@@ -353,7 +312,7 @@ namespace EnvelopeWarpLibrary
         public string ToString(IFormatProvider provider) => ToString(null /* format string */, provider);
 
         /// <summary>
-        /// Creates a <see cref="string" /> representation of this <see cref="CubicEnvelope" /> class based on the format string
+        /// Creates a <see cref="string" /> representation of this <see cref="LinearEnvelope" /> class based on the format string
         /// and IFormatProvider passed in.
         /// If the provider is null, the CurrentCulture is used.
         /// See the documentation for IFormattable for more information.
@@ -363,10 +322,10 @@ namespace EnvelopeWarpLibrary
         /// <returns>
         /// A <see cref="string" /> representation of this object.
         /// </returns>
-        public string ToString(string format, IFormatProvider provider)
+        public string ToString(string? format, IFormatProvider provider)
         {
             var sep = ',';
-            return $"{nameof(CubicEnvelope)}{{{nameof(ControlPointTopLeft)}={ControlPointTopLeft.ToString(format, provider)}" +
+            return $"{nameof(LinearEnvelope)}{{{nameof(ControlPointTopLeft)}={ControlPointTopLeft.ToString(format, provider)}" +
                 $"{sep}{nameof(ControlPointTopRight)}={ControlPointTopRight.ToString(format, provider)}" +
                 $"{sep}{nameof(ControlPointBottomLeft)}={ControlPointBottomLeft.ToString(format, provider)}" +
                 $"{sep}{nameof(ControlPointBottomRight)}={ControlPointBottomRight.ToString(format, provider)}}}";

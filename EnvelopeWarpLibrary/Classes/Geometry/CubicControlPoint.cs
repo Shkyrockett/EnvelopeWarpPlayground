@@ -196,7 +196,7 @@ namespace EnvelopeWarpLibrary
         /// <returns>
         /// The <see cref="PointF" />.
         /// </returns>
-        private static PointF LocalToGlobal(PointF point, PointF reference) => new PointF(point.X + reference.X, point.Y + reference.Y);
+        private static PointF LocalToGlobal(PointF point, PointF reference) => new(point.X + reference.X, point.Y + reference.Y);
 
         /// <summary>
         /// The global to local method.
@@ -206,7 +206,7 @@ namespace EnvelopeWarpLibrary
         /// <returns>
         /// The <see cref="PointF" />.
         /// </returns>
-        private static PointF GlobalToLocal(PointF point, PointF reference) => new PointF(point.X - reference.X, point.Y - reference.Y);
+        private static PointF GlobalToLocal(PointF point, PointF reference) => new(point.X - reference.X, point.Y - reference.Y);
 
         /// <summary>
         /// Get the hash code.

@@ -10,6 +10,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using static System.MathF;
@@ -45,7 +46,76 @@ namespace EnvelopeWarpLibrary
 
         #region Envelope Methods
         /// <summary>
-        /// The distort.
+        /// Distorts the specified group.
+        /// </summary>
+        /// <param name="group">The group.</param>
+        /// <param name="bounds">The bounds.</param>
+        /// <param name="envelope">The envelope.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Group Distort(Group group, RectangleF bounds, IEnvelope envelope)
+        {
+            if (group is null) return group;
+            var newGroup = new Group();
+            foreach (var polygon in group)
+            {
+                switch (polygon)
+                {
+                    case Group g:
+                        newGroup.Add(Distort(g, bounds, envelope));
+                        break;
+                    case Polygon p:
+                        newGroup.Add(Distort(p, bounds, envelope));
+                        break;
+                    case PolygonContour c:
+                        newGroup.Add(Distort(c, bounds, envelope));
+                        break;
+                    default:
+                        break;
+                }
+
+                newGroup.Add(new Polygon());
+            }
+
+            return newGroup;
+        }
+
+        /// <summary>
+        /// Distorts the specified polygon.
+        /// </summary>
+        /// <param name="polygon">The polygon.</param>
+        /// <param name="bounds">The bounds.</param>
+        /// <param name="envelope">The envelope.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Polygon Distort(Polygon polygon, RectangleF bounds, IEnvelope envelope)
+        {
+            if (polygon is null) return polygon;
+            return new Polygon(Distort(polygon.Contours, bounds, envelope));
+        }
+
+        /// <summary>
+        /// Distorts the specified polygons.
+        /// </summary>
+        /// <param name="polygons">The polygons.</param>
+        /// <param name="bounds">The bounds.</param>
+        /// <param name="envelope">The envelope.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static List<Polygon> Distort(List<Polygon> polygons, RectangleF bounds, IEnvelope envelope)
+        {
+            if (polygons is null) return polygons;
+            var list = new List<Polygon>();
+            foreach (var polygon in polygons)
+            {
+                list.Add(new Polygon(Distort(polygon.Contours, bounds, envelope)));
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// Distorts the specified polygons.
         /// </summary>
         /// <param name="polygons">The <paramref name="polygons" />.</param>
         /// <param name="bounds">The <paramref name="bounds" />.</param>
@@ -56,6 +126,7 @@ namespace EnvelopeWarpLibrary
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static List<PolygonContour> Distort(List<PolygonContour> polygons, RectangleF bounds, IEnvelope envelope)
         {
+            if (polygons is null) return polygons;
             var distortions = new List<PolygonContour>();
             foreach (var contour in polygons)
             {
@@ -78,6 +149,37 @@ namespace EnvelopeWarpLibrary
             }
 
             return distortions;
+        }
+
+        /// <summary>
+        /// Distorts the specified polygon contour.
+        /// </summary>
+        /// <param name="contour">The contour.</param>
+        /// <param name="bounds">The <paramref name="bounds" />.</param>
+        /// <param name="envelope">The <paramref name="envelope" />.</param>
+        /// <returns>
+        /// The <see cref="T:List{PolygonContour}" />.
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PolygonContour Distort(PolygonContour contour, RectangleF bounds, IEnvelope envelope)
+        {
+            if (contour is null) return contour;
+            var distortion = new PolygonContour();
+
+            // Set previous as the last point for closed shapes.
+            var previous = contour[^1];
+            foreach (var point in contour)
+            {
+                var dist = 1f / Distance(previous, point) * 2f;
+                for (var i = 0f; i < 1; i += dist)
+                {
+                    distortion.Add(envelope.ProcessPoint(bounds, Lerp(previous, point, i)));
+                }
+
+                previous = point;
+            }
+
+            return distortion;
         }
 
         /// <summary>
@@ -494,7 +596,7 @@ namespace EnvelopeWarpLibrary
         /// Returns a <see cref="PointF" /> representing a point on the linear curve at the t index.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF Lerp(PointF a, PointF b, float t) => new PointF(
+        public static PointF Lerp(PointF a, PointF b, float t) => new(
             ((1f - t) * a.X) + (t * b.X),
             ((1f - t) * a.Y) + (t * b.Y)
         );
@@ -508,7 +610,7 @@ namespace EnvelopeWarpLibrary
         /// <param name="t">The <paramref name="t" /> index of the quadratic curve.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF Qerp(PointF a, PointF b, PointF c, float t) => new PointF(
+        public static PointF Qerp(PointF a, PointF b, PointF c, float t) => new(
             ((1f - t) * (1f - t) * a.X) + (2f * (1f - t) * t * b.X) + (t * t * c.X),
             ((1f - t) * (1f - t) * a.Y) + (2f * (1f - t) * t * b.Y) + (t * t * c.Y)
         );
@@ -523,7 +625,7 @@ namespace EnvelopeWarpLibrary
         /// <param name="t">The <paramref name="t" /> index of the cubic curve.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF Cerp(PointF a, PointF b, PointF c, PointF d, float t) => new PointF(
+        public static PointF Cerp(PointF a, PointF b, PointF c, PointF d, float t) => new(
             ((1f - t) * (1f - t) * (1f - t) * a.X) + (3f * ((1f - t) * (1f - t)) * t * b.X) + (3f * (1f - t) * t * t * c.X) + (t * t * t * d.X),
             ((1f - t) * (1f - t) * (1f - t) * a.Y) + (3f * ((1f - t) * (1f - t)) * t * b.Y) + (3f * (1f - t) * t * t * c.Y) + (t * t * t * d.Y)
         );
@@ -648,6 +750,75 @@ namespace EnvelopeWarpLibrary
 
         #region Bounds Methods
         /// <summary>
+        /// the Group bounds.
+        /// </summary>
+        /// <param name="group">The group.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RectangleF? PolygonBounds(Group group)
+        {
+            var rect = new RectangleF();
+            foreach (var shape in group)
+            {
+                switch (shape)
+                {
+                    case Group g:
+                        {
+                            if (PolygonBounds(g) is RectangleF bounds) rect = Union(rect, bounds);
+                        }
+                        break;
+                    case Polygon p:
+                        {
+                            if (PolygonBounds(p) is RectangleF bounds) rect = Union(rect, bounds);
+                        }
+                        break;
+                    case PolygonContour c:
+                        {
+                            if (PolygonBounds(c) is RectangleF bounds) rect = Union(rect, bounds);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+            return rect;
+        }
+
+        /// <summary>
+        /// The polygon bounds.
+        /// </summary>
+        /// <param name="polygons">The <paramref name="polygons" />.</param>
+        /// <returns>
+        /// The <see cref="RectangleF" />.
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RectangleF? PolygonBounds(List<Polygon> polygons)
+        {
+            var rect = new RectangleF();
+            foreach (var polygon in polygons)
+            {
+                if (PolygonBounds(polygon.Contours) is RectangleF bounds) rect = Union(rect, bounds);
+            }
+            return rect;
+        }
+
+        /// <summary>
+        /// The polygon bounds.
+        /// </summary>
+        /// <param name="polygon">The polygon.</param>
+        /// <returns>
+        /// The <see cref="RectangleF" />.
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RectangleF? PolygonBounds(Polygon polygon)
+        {
+            var rect = new RectangleF();
+            if (PolygonBounds(polygon.Contours) is RectangleF bounds) rect = Union(rect, bounds);
+            return rect;
+        }
+
+        /// <summary>
         /// The polygon bounds.
         /// </summary>
         /// <param name="polygons">The <paramref name="polygons" />.</param>
@@ -660,8 +831,23 @@ namespace EnvelopeWarpLibrary
             var rect = new RectangleF();
             foreach (var polygon in polygons)
             {
-                rect = Union(rect, PolygonBounds(polygon.Points).Value);
+                if (PolygonBounds(polygon.Points) is RectangleF bounds) rect = Union(rect, bounds);
             }
+            return rect;
+        }
+
+        /// <summary>
+        /// The polygon bounds.
+        /// </summary>
+        /// <param name="contour">The <paramref name="contour" />.</param>
+        /// <returns>
+        /// The <see cref="RectangleF" />.
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RectangleF? PolygonBounds(PolygonContour contour)
+        {
+            var rect = new RectangleF();
+            if (PolygonBounds(contour.Points) is RectangleF bounds) rect = Union(rect, bounds);
             return rect;
         }
 
@@ -798,6 +984,7 @@ namespace EnvelopeWarpLibrary
         {
             // Default value is no inclusion.
             var result = Inclusions.Outside;
+            if (points is null) return result;
 
             // Special cases for points and line segments.
             if (points?.Count < 3)
@@ -824,7 +1011,7 @@ namespace EnvelopeWarpLibrary
             }
 
             // Loop through each line segment.
-            var curPoint = points[0];
+            var curPoint = points![0];
             for (var i = 1; i <= points.Count; ++i)
             {
                 var nextPoint = i == points.Count ? points[0] : points[i];
@@ -917,7 +1104,7 @@ namespace EnvelopeWarpLibrary
         /// <param name="scale">The scale.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF ScreenToObject(PointF point, float scale) => new PointF(point.X / scale, point.Y / scale);
+        public static PointF ScreenToObject(PointF point, float scale) => new(point.X / scale, point.Y / scale);
 
         /// <summary>
         /// Inverses the translation and scale of a point.
@@ -941,7 +1128,7 @@ namespace EnvelopeWarpLibrary
         /// <param name="scale">The scale.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF ScreenToObject(PointF offset, PointF point, float scale) => new PointF((point.X - offset.X) / scale, (point.Y - offset.Y) / scale);
+        public static PointF ScreenToObject(PointF offset, PointF point, float scale) => new((point.X - offset.X) / scale, (point.Y - offset.Y) / scale);
 
         /// <summary>
         /// Screens to object transposed matrix.
@@ -965,7 +1152,7 @@ namespace EnvelopeWarpLibrary
         /// <param name="scale">The scale.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF ScreenToObjectTransposedMatrix(PointF offset, PointF screenPoint, float scale) => new PointF((screenPoint.X / scale) - offset.X, (screenPoint.Y / scale) - offset.Y);
+        public static PointF ScreenToObjectTransposedMatrix(PointF offset, PointF screenPoint, float scale) => new((screenPoint.X / scale) - offset.X, (screenPoint.Y / scale) - offset.Y);
 
         /// <summary>
         /// Objects to screen.
@@ -974,7 +1161,7 @@ namespace EnvelopeWarpLibrary
         /// <param name="scale">The scale.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF ObjectToScreen(PointF point, float scale) => new PointF(point.X * scale, point.Y * scale);
+        public static PointF ObjectToScreen(PointF point, float scale) => new(point.X * scale, point.Y * scale);
 
         /// <summary>
         /// Objects to screen. https://stackoverflow.com/a/37269366
@@ -984,7 +1171,7 @@ namespace EnvelopeWarpLibrary
         /// <param name="scale">The scale.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF ObjectToScreen(PointF offset, PointF point, float scale) => new PointF(offset.X + (point.X * scale), offset.Y + (point.Y * scale));
+        public static PointF ObjectToScreen(PointF offset, PointF point, float scale) => new(offset.X + (point.X * scale), offset.Y + (point.Y * scale));
 
         /// <summary>
         /// Objects to screen transposed matrix. https://stackoverflow.com/a/37269366
@@ -994,7 +1181,7 @@ namespace EnvelopeWarpLibrary
         /// <param name="scale">The scale.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF ObjectToScreenTransposedMatrix(PointF offset, PointF objectPoint, float scale) => new PointF((offset.X + objectPoint.X) * scale, (offset.Y + objectPoint.Y) * scale);
+        public static PointF ObjectToScreenTransposedMatrix(PointF offset, PointF objectPoint, float scale) => new((offset.X + objectPoint.X) * scale, (offset.Y + objectPoint.Y) * scale);
 
         /// <summary>
         /// Zooms at. https://stackoverflow.com/a/37269366
@@ -1013,7 +1200,7 @@ namespace EnvelopeWarpLibrary
         }
 
         /// <summary>
-        /// Zooms at transposed matrix. https://stackoverflow.com/a/37269366
+        /// Zooms at for a transposed matrix. https://stackoverflow.com/a/37269366
         /// </summary>
         /// <param name="offset">The offset.</param>
         /// <param name="cursor">The cursor.</param>
@@ -1036,7 +1223,7 @@ namespace EnvelopeWarpLibrary
         /// <param name="subtrahend">The subtrahend.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF Subtract(this PointF minuend, PointF subtrahend) => new PointF(minuend.X - subtrahend.X, minuend.Y - subtrahend.Y);
+        public static PointF Subtract(this PointF minuend, PointF subtrahend) => new(minuend.X - subtrahend.X, minuend.Y - subtrahend.Y);
 
         /// <summary>
         /// Subtracts the specified subtrahend.
@@ -1045,7 +1232,7 @@ namespace EnvelopeWarpLibrary
         /// <param name="subtrahend">The subtrahend.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF Subtract(this PointF minuend, Point subtrahend) => new PointF(minuend.X - subtrahend.X, minuend.Y - subtrahend.Y);
+        public static PointF Subtract(this PointF minuend, Point subtrahend) => new(minuend.X - subtrahend.X, minuend.Y - subtrahend.Y);
 
         /// <summary>
         /// Subtracts the specified subtrahend.
@@ -1054,7 +1241,7 @@ namespace EnvelopeWarpLibrary
         /// <param name="subtrahend">The subtrahend.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF Subtract(this Point minuend, PointF subtrahend) => new PointF(minuend.X - subtrahend.X, minuend.Y - subtrahend.Y);
+        public static PointF Subtract(this Point minuend, PointF subtrahend) => new(minuend.X - subtrahend.X, minuend.Y - subtrahend.Y);
 
         /// <summary>
         /// Subtracts the specified subtrahend.
@@ -1063,7 +1250,7 @@ namespace EnvelopeWarpLibrary
         /// <param name="subtrahend">The subtrahend.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Point Subtract(this Point minuend, Point subtrahend) => new Point(minuend.X - subtrahend.X, minuend.Y - subtrahend.Y);
+        public static Point Subtract(this Point minuend, Point subtrahend) => new(minuend.X - subtrahend.X, minuend.Y - subtrahend.Y);
         #endregion
 
         #region Add Point
@@ -1074,7 +1261,7 @@ namespace EnvelopeWarpLibrary
         /// <param name="subtrahend">The subtrahend.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF Add(this PointF minuend, PointF subtrahend) => new PointF(minuend.X + subtrahend.X, minuend.Y + subtrahend.Y);
+        public static PointF Add(this PointF minuend, PointF subtrahend) => new(minuend.X + subtrahend.X, minuend.Y + subtrahend.Y);
 
         /// <summary>
         /// Adds the specified subtrahend.
@@ -1083,7 +1270,7 @@ namespace EnvelopeWarpLibrary
         /// <param name="subtrahend">The subtrahend.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF Add(this PointF minuend, Point subtrahend) => new PointF(minuend.X + subtrahend.X, minuend.Y + subtrahend.Y);
+        public static PointF Add(this PointF minuend, Point subtrahend) => new(minuend.X + subtrahend.X, minuend.Y + subtrahend.Y);
 
         /// <summary>
         /// Adds the specified subtrahend.
@@ -1092,7 +1279,7 @@ namespace EnvelopeWarpLibrary
         /// <param name="subtrahend">The subtrahend.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF Add(this Point minuend, PointF subtrahend) => new PointF(minuend.X + subtrahend.X, minuend.Y + subtrahend.Y);
+        public static PointF Add(this Point minuend, PointF subtrahend) => new(minuend.X + subtrahend.X, minuend.Y + subtrahend.Y);
 
         /// <summary>
         /// Adds the specified subtrahend.
@@ -1101,7 +1288,7 @@ namespace EnvelopeWarpLibrary
         /// <param name="subtrahend">The subtrahend.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Point Add(this Point minuend, Point subtrahend) => new Point(minuend.X + subtrahend.X, minuend.Y + subtrahend.Y);
+        public static Point Add(this Point minuend, Point subtrahend) => new(minuend.X + subtrahend.X, minuend.Y + subtrahend.Y);
         #endregion
 
         #region Scale Point
@@ -1112,7 +1299,7 @@ namespace EnvelopeWarpLibrary
         /// <param name="scaler">The scaler.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF Scale(this PointF multiplicand, float scaler) => new PointF(multiplicand.X * scaler, multiplicand.Y * scaler);
+        public static PointF Scale(this PointF multiplicand, float scaler) => new(multiplicand.X * scaler, multiplicand.Y * scaler);
 
         /// <summary>
         /// Scales the specified multiplier.
@@ -1121,7 +1308,7 @@ namespace EnvelopeWarpLibrary
         /// <param name="scaler">The scaler.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF Scale(this PointF multiplicand, SizeF scaler) => new PointF(multiplicand.X * scaler.Width, multiplicand.Y * scaler.Height);
+        public static PointF Scale(this PointF multiplicand, SizeF scaler) => new(multiplicand.X * scaler.Width, multiplicand.Y * scaler.Height);
 
         /// <summary>
         /// Scales the specified scaler.
@@ -1130,7 +1317,7 @@ namespace EnvelopeWarpLibrary
         /// <param name="scaler">The scaler.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF Scale(this Point multiplicand, float scaler) => new PointF(multiplicand.X * scaler, multiplicand.Y * scaler);
+        public static PointF Scale(this Point multiplicand, float scaler) => new(multiplicand.X * scaler, multiplicand.Y * scaler);
 
         /// <summary>
         /// Scales the specified scaler.
@@ -1139,7 +1326,7 @@ namespace EnvelopeWarpLibrary
         /// <param name="scaler">The scaler.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PointF Scale(this Point multiplicand, SizeF scaler) => new PointF(multiplicand.X * scaler.Width, multiplicand.Y * scaler.Height);
+        public static PointF Scale(this Point multiplicand, SizeF scaler) => new(multiplicand.X * scaler.Width, multiplicand.Y * scaler.Height);
 
         /// <summary>
         /// Scales the specified scaler.
@@ -1148,7 +1335,7 @@ namespace EnvelopeWarpLibrary
         /// <param name="scaler">The scaler.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Point Scale(this Point multiplicand, int scaler) => new Point(multiplicand.X * scaler, multiplicand.Y * scaler);
+        public static Point Scale(this Point multiplicand, int scaler) => new(multiplicand.X * scaler, multiplicand.Y * scaler);
 
         /// <summary>
         /// Scales the specified scaler.
@@ -1157,7 +1344,7 @@ namespace EnvelopeWarpLibrary
         /// <param name="scaler">The scaler.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Point Scale(this Point multiplicand, Size scaler) => new Point(multiplicand.X * scaler.Width, multiplicand.Y * scaler.Height);
+        public static Point Scale(this Point multiplicand, Size scaler) => new(multiplicand.X * scaler.Width, multiplicand.Y * scaler.Height);
         #endregion Scale Point
 
         #region Point To String

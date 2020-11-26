@@ -10,7 +10,6 @@
 
 using EnvelopeWarpLibrary;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -175,23 +174,12 @@ namespace EnvelopeWarpPlayground
         public CanvasControl()
         {
             DoubleBuffered = true;
+            HandleRadius = 3;
             InitializeComponent();
         }
         #endregion
 
         #region Properties
-        /// <summary>
-        /// Gets or sets the background color for the control.
-        /// </summary>
-        //[DefaultValue(SystemColors.Window)]
-        public new Color BackColor { get; set; }
-
-        /// <summary>
-        /// Gets or sets the border style of the user control.
-        /// </summary>
-        [DefaultValue(BorderStyle.FixedSingle)]
-        public new BorderStyle BorderStyle { get; set; }
-
         /// <summary>
         /// Gets or sets the ghost polygon pen.
         /// </summary>
@@ -216,12 +204,44 @@ namespace EnvelopeWarpPlayground
         private int HandleRadiusSquared => HandleRadius * HandleRadius;
 
         /// <summary>
+        /// Gets or sets the document.
+        /// </summary>
+        /// <value>
+        /// The document.
+        /// </value>
+        public Group Document { get => group; set => group = value; }
+
+        /// <summary>
+        /// Gets or sets the distorted document.
+        /// </summary>
+        /// <value>
+        /// The distorted document.
+        /// </value>
+        public Group DistortedDocument { get => polygonsDistorted; set => polygonsDistorted = value; }
+
+        /// <summary>
+        /// Gets or sets the document bounds.
+        /// </summary>
+        /// <value>
+        /// The document bounds.
+        /// </value>
+        public RectangleF DocumentBounds { get => polygonsBounds; set => polygonsBounds = value; }
+
+        /// <summary>
+        /// Gets or sets the envelope.
+        /// </summary>
+        /// <value>
+        /// The envelope.
+        /// </value>
+        public IEnvelope Envelope { get => envelope; set => envelope = value; }
+
+        /// <summary>
         /// Gets or sets the pan point.
         /// </summary>
         /// <value>
         /// The pan point.
         /// </value>
-        public PointF PanPoint
+        public PointF Pan
         {
             get => panPoint; set
             {
@@ -241,7 +261,7 @@ namespace EnvelopeWarpPlayground
         /// <value>
         /// The scale.
         /// </value>
-        public new float Scale
+        public float Zoom
         {
             get => scale; set
             {
@@ -264,52 +284,7 @@ namespace EnvelopeWarpPlayground
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void CanvasControl_Load(object sender, EventArgs e)
-        {
-            var (left, top, width, height) = (100f, 100f, 300f, 200f);
-            var (hStroke, vStroke, hOffset, vOffset, hMargin, vMargin) = (width / 6f, height / 4f, width, 0f, 25f, 0f);
-
-            // H.
-            var h = new PolygonContour(
-                new PointF(left, top),
-                new PointF(left + hStroke, top),
-                new PointF(left + hStroke, top + (1.5f * vStroke)),
-                new PointF(left + (2f * hStroke), top + (1.5f * vStroke)),
-                new PointF(left + (2f * hStroke), top),
-                new PointF(left + (3f * hStroke), top),
-                new PointF(left + (3f * hStroke), top + height),
-                new PointF(left + (2f * hStroke), top + height),
-                new PointF(left + (2f * hStroke), top + (2.5f * vStroke)),
-                new PointF(left + hStroke, top + (2.5f * vStroke)),
-                new PointF(left + hStroke, top + height),
-                new PointF(left, top + height)
-            );
-
-            // I.
-            var i = new PolygonContour(
-                new PointF(left + (3f * hStroke), top),
-                new PointF(left + width, top),
-                new PointF(left + width, top + vStroke),
-                new PointF(left + (5f * hStroke), top + vStroke),
-                new PointF(left + (5f * hStroke), top + (3f * vStroke)),
-                new PointF(left + width, top + (3f * vStroke)),
-                new PointF(left + width, top + height),
-                new PointF(left + (3f * hStroke), top + height),
-                new PointF(left + (3f * hStroke), top + (3f * vStroke)),
-                new PointF(left + (4f * hStroke), top + (3f * vStroke)),
-                new PointF(left + (4f * hStroke), top + vStroke),
-                new PointF(left + (3f * hStroke), top + vStroke)
-            );
-
-            group = new Group(new Polygon(h, i));
-
-            //envelope = new LinearEnvelope(left + width, top, width, height);
-            //envelope = new QuadraticEnvelope(left + width, top, width, height);
-            envelope = new CubicEnvelope(left + hOffset + hMargin, top + vOffset + vMargin, width, height);
-
-            //polygonsBounds = PolygonBounds(polygons).Value;
-            polygonsBounds = new RectangleF(left, top, width, height);
-            polygonsDistorted = Distort(group, polygonsBounds, envelope);
-        }
+        { }
 
         /// <summary>
         /// Handles the Resize event of the CanvasControl control.
@@ -792,8 +767,7 @@ namespace EnvelopeWarpPlayground
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void CanvasControl_MouseEnter(object sender, EventArgs e)
-        {
-        }
+        { }
 
         /// <summary>
         /// Handles the MouseHover event of the CanvasControl control.
@@ -802,8 +776,7 @@ namespace EnvelopeWarpPlayground
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void CanvasControl_MouseHover(object sender, EventArgs e)
-        {
-        }
+        { }
 
         /// <summary>
         /// Handles the MouseLeave event of the CanvasControl control.
@@ -812,8 +785,7 @@ namespace EnvelopeWarpPlayground
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void CanvasControl_MouseLeave(object sender, EventArgs e)
-        {
-        }
+        { }
 
         /// <summary>
         /// Handles the Enter event of the CanvasControl control.
@@ -822,8 +794,7 @@ namespace EnvelopeWarpPlayground
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void CanvasControl_Enter(object sender, EventArgs e)
-        {
-        }
+        { }
 
         /// <summary>
         /// Handles the Leave event of the CanvasControl control.
@@ -832,8 +803,7 @@ namespace EnvelopeWarpPlayground
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void CanvasControl_Leave(object sender, EventArgs e)
-        {
-        }
+        { }
         #endregion
 
         #region Methods

@@ -23,8 +23,7 @@ namespace EnvelopeWarpLibrary
     /// <summary>
     /// The polygon contour class.
     /// </summary>
-    /// <seealso cref="PolygonLibrary.IGeometry{T}" />
-    /// <seealso cref="PolygonLibrary.IGeometry" />
+    /// <seealso cref="EnvelopeWarpLibrary.IGeometry{T}" />
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public class PolygonContour
         : IGeometry<PointF>
@@ -285,7 +284,7 @@ namespace EnvelopeWarpLibrary
         {
             var output = new StringBuilder();
 
-            var sep = ',';
+            const char sep = ',';
 
             foreach (var item in Points)
             {
@@ -334,7 +333,7 @@ namespace EnvelopeWarpLibrary
                 return nameof(PolygonContour);
             }
 
-            var sep = ',';
+            const char sep = ',';
             return $"{nameof(PolygonContour)}{{{string.Join(sep.ToString(), Points.Select(x => x.ToString("R" /* format string */, CultureInfo.InvariantCulture /* format provider */)))}}}";
         }
 

@@ -8,11 +8,11 @@
 // <summary></summary>
 // <remarks></remarks>
 
-using EnvelopeWarpLibrary;
 using System;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
+using EnvelopeWarpLibrary;
 using static EnvelopeWarpLibrary.Mathematics;
 
 namespace EnvelopeWarpPlayground

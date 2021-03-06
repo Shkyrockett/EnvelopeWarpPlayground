@@ -2,12 +2,13 @@
   
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <UseWindowsForms>true</UseWindowsForms>
     <Version>0.0.0.1</Version>
     <Authors>Shkyrockett</Authors>
     <Copyright>Copyright © Shkyrockett 2019 - 2020</Copyright>
+    <PackageLicenseFile>Properties\LICENSE.md</PackageLicenseFile>
     <Description>Test application used for investigating envelope warping of polygonal geometry.</Description>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <DocumentationFile>$(OutputPath)$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>

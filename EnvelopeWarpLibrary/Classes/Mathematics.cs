@@ -54,7 +54,7 @@ namespace EnvelopeWarpLibrary
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Group Distort(Group group, RectangleF bounds, IEnvelope envelope)
         {
-            if (group is null) return group;
+            if (group is null) return group!;
             var newGroup = new Group();
             foreach (var polygon in group)
             {
@@ -89,7 +89,7 @@ namespace EnvelopeWarpLibrary
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Polygon Distort(Polygon polygon, RectangleF bounds, IEnvelope envelope)
         {
-            if (polygon is null) return polygon;
+            if (polygon is null) return polygon!;
             return new Polygon(Distort(polygon.Contours, bounds, envelope));
         }
 
@@ -103,7 +103,7 @@ namespace EnvelopeWarpLibrary
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static List<Polygon> Distort(List<Polygon> polygons, RectangleF bounds, IEnvelope envelope)
         {
-            if (polygons is null) return polygons;
+            if (polygons is null) return polygons!;
             var list = new List<Polygon>();
             foreach (var polygon in polygons)
             {
@@ -125,7 +125,7 @@ namespace EnvelopeWarpLibrary
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static List<PolygonContour> Distort(List<PolygonContour> polygons, RectangleF bounds, IEnvelope envelope)
         {
-            if (polygons is null) return polygons;
+            if (polygons is null) return polygons!;
             var distortions = new List<PolygonContour>();
             foreach (var contour in polygons)
             {
@@ -162,7 +162,7 @@ namespace EnvelopeWarpLibrary
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static PolygonContour Distort(PolygonContour contour, RectangleF bounds, IEnvelope envelope)
         {
-            if (contour is null) return contour;
+            if (contour is null) return contour!;
             var distortion = new PolygonContour();
 
             // Set previous as the last point for closed shapes.
@@ -860,27 +860,25 @@ namespace EnvelopeWarpLibrary
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RectangleF? PolygonBounds(IEnumerable<PointF> polygonPoints)
         {
-            var points = polygonPoints as List<PointF>;
-            if (points?.Count < 1)
+            if (polygonPoints is List<PointF> points && points.Count >= 1)
             {
-                return null;
+                var left = points[0].X;
+                var top = points[0].Y;
+                var right = points[0].X;
+                var bottom = points[0].Y;
+
+                foreach (var point in points)
+                {
+                    // ToDo: Measure performance impact of overwriting each time.
+                    left = point.X <= left ? point.X : left;
+                    top = point.Y <= top ? point.Y : top;
+                    right = point.X >= right ? point.X : right;
+                    bottom = point.Y >= bottom ? point.Y : bottom;
+                }
+
+                return RectangleF.FromLTRB(left, top, right, bottom);
             }
-
-            var left = points[0].X;
-            var top = points[0].Y;
-            var right = points[0].X;
-            var bottom = points[0].Y;
-
-            foreach (var point in points)
-            {
-                // ToDo: Measure performance impact of overwriting each time.
-                left = point.X <= left ? point.X : left;
-                top = point.Y <= top ? point.Y : top;
-                right = point.X >= right ? point.X : right;
-                bottom = point.Y >= bottom ? point.Y : bottom;
-            }
-
-            return RectangleF.FromLTRB(left, top, right, bottom);
+            return null;
         }
 
         /// <summary>
@@ -1357,7 +1355,7 @@ namespace EnvelopeWarpLibrary
         /// A <see cref="string" /> that represents this instance.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string ToString(this PointF point, string format, IFormatProvider provider) => $"{{X={point.X.ToString(format, provider)}, Y={point.Y.ToString(format, provider)}}}";
+        public static string ToString(this PointF point, string? format, IFormatProvider provider) => $"{{X={point.X.ToString(format, provider)}, Y={point.Y.ToString(format, provider)}}}";
 
         /// <summary>
         /// Converts to string.
@@ -1369,7 +1367,7 @@ namespace EnvelopeWarpLibrary
         /// A <see cref="string" /> that represents this instance.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string ToString(this Point point, string format, IFormatProvider provider) => $"{{X={point.X.ToString(format, provider)}, Y={point.Y.ToString(format, provider)}}}";
+        public static string ToString(this Point point, string? format, IFormatProvider provider) => $"{{X={point.X.ToString(format, provider)}, Y={point.Y.ToString(format, provider)}}}";
         #endregion Point To String
         #endregion Point Manipulation Methods
     }

@@ -395,7 +395,7 @@ namespace EnvelopeWarpLibrary
         /// </returns>
         public string ToString(string? format, IFormatProvider provider)
         {
-            var sep = ',';
+            const char sep = ',';
             return $"{nameof(CubicEnvelope)}{{{nameof(ControlPointTopLeft)}={ControlPointTopLeft.ToString(format, provider)}" +
                 $"{sep}{nameof(ControlPointTopRight)}={ControlPointTopRight.ToString(format, provider)}" +
                 $"{sep}{nameof(ControlPointBottomLeft)}={ControlPointBottomLeft.ToString(format, provider)}" +

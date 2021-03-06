@@ -223,7 +223,7 @@ namespace EnvelopeWarpLibrary
         /// <returns>
         /// The <see cref="bool" />.
         /// </returns>
-        public override bool Equals(object obj) => obj is CubicControlPoint point && Equals(point);
+        public override bool Equals(object? obj) => obj is CubicControlPoint point && Equals(point);
 
         /// <summary>
         /// The equals.
@@ -283,9 +283,9 @@ namespace EnvelopeWarpLibrary
         /// <returns>
         /// A <see cref="string" /> representation of this object.
         /// </returns>
-        public string ToString(string format, IFormatProvider provider)
+        public string ToString(string? format, IFormatProvider provider)
         {
-            var sep = ',';
+            const char sep = ',';
             return $"{nameof(CubicControlPoint)}{{{nameof(Point)}={Point.ToString(format, provider)}{sep}{nameof(AnchorA)}={AnchorA.ToString(format, provider)}{sep}{nameof(AnchorB)}={AnchorB.ToString(format, provider)}}}";
         }
 

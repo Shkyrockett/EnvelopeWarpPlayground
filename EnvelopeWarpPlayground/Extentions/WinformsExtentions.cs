@@ -8,9 +8,9 @@
 // <summary></summary>
 // <remarks></remarks>
 
-using EnvelopeWarpLibrary;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using EnvelopeWarpLibrary;
 
 namespace EnvelopeWarpPlayground
 {

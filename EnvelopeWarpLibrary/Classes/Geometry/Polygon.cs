@@ -267,7 +267,7 @@ namespace EnvelopeWarpLibrary
                 return nameof(Polygon);
             }
 
-            var sep = ',';
+            const char sep = ',';
             return $"{nameof(Polygon)}{{{string.Join(sep.ToString(), Contours.Select(x => x.ToString(format, formatProvider)))}}}";
         }
 

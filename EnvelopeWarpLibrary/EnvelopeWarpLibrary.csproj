@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <Version>0.0.0.1</Version>
     <Nullable>enable</Nullable>
@@ -10,6 +10,7 @@
     <Product>EnvelopeWarpLibrary</Product>
     <Copyright>Copyright © Shkyrockett 2019 - 2020</Copyright>
     <Description>Library used for investigating envelope warping of polygonal geometry.</Description>
+    <PackageLicenseFile>Properties\LICENSE.md</PackageLicenseFile>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <DocumentationFile>$(OutputPath)$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

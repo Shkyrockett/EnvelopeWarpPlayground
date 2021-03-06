@@ -20,8 +20,7 @@ namespace EnvelopeWarpLibrary
     /// <summary>
     /// The Group class.
     /// </summary>
-    /// <seealso cref="PolygonLibrary.IGeometry{T}" />
-    /// <seealso cref="PolygonLibrary.IGeometry" />
+    /// <seealso cref="EnvelopeWarpLibrary.IGeometry{T}" />
     public class Group
         : IGeometry<IGeometry>
     {
@@ -359,7 +358,7 @@ namespace EnvelopeWarpLibrary
                 return nameof(Group);
             }
 
-            var sep = ',';
+            const char sep = ',';
             return $"{nameof(Group)}{{{string.Join(sep.ToString(), Shapes.Select(x => x.ToString(format, formatProvider)))}}}";
         }
 

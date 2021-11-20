@@ -1,4 +1,4 @@
-﻿// <copyright file="Inclusions.cs">
+﻿// <copyright file="IEnvelope.cs">
 //     Copyright © 2019 - 2020 Shkyrockett. All rights reserved.
 // </copyright>
 // <author id="shkyrockett">Shkyrockett</author>
@@ -8,26 +8,22 @@
 // <summary></summary>
 // <remarks></remarks>
 
+using System.Drawing;
+
 namespace EnvelopeWarpLibrary;
 
 /// <summary>
-/// Enumeration of the inclusion of a point within a shape.
+/// Interface for Envelopes.
 /// </summary>
-public enum Inclusions
-    : sbyte
+/// <seealso cref="IGeometry{T}" />
+public interface IEnvelope
+    : IGeometry<PointF>
 {
     /// <summary>
-    /// Touches the boundary of the shape.
+    /// Processes the point.
     /// </summary>
-    Boundary = -1,
-
-    /// <summary>
-    /// Point lies outside the shape.
-    /// </summary>
-    Outside = 0,
-
-    /// <summary>
-    /// Point is contained inside the shape.
-    /// </summary>
-    Inside = 1,
+    /// <param name="bounds">The bounds.</param>
+    /// <param name="point">The point.</param>
+    /// <returns></returns>
+    PointF ProcessPoint(RectangleF bounds, PointF point);
 }

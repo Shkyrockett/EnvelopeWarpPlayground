@@ -12,6 +12,7 @@
     <Description>Test application used for investigating envelope warping of polygonal geometry.</Description>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <DocumentationFile>$(OutputPath)$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">

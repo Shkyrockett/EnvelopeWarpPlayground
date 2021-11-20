@@ -8,405 +8,402 @@
 // <summary></summary>
 // <remarks></remarks>
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
-namespace EnvelopeWarpLibrary
+namespace EnvelopeWarpLibrary;
+
+/// <summary>
+/// The envelope distort class.
+/// </summary>
+/// <seealso cref="IEnvelope" />
+/// <seealso cref="IEquatable{T}" />
+[DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
+public struct CubicEnvelope
+    : IEnvelope, IEquatable<CubicEnvelope>
 {
+    #region Constructors
     /// <summary>
-    /// The envelope distort class.
+    /// Initializes a new instance of the <see cref="CubicEnvelope" /> struct.
     /// </summary>
-    /// <seealso cref="IEnvelope" />
-    /// <seealso cref="IEquatable{T}" />
-    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
-    public struct CubicEnvelope
-        : IEnvelope, IEquatable<CubicEnvelope>
+    /// <param name="rectangle">The rectangle.</param>
+    public CubicEnvelope(RectangleF rectangle)
+        : this(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height)
+    { }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CubicEnvelope" /> class.
+    /// </summary>
+    /// <param name="x">The x.</param>
+    /// <param name="y">The y.</param>
+    /// <param name="width">The width.</param>
+    /// <param name="height">The height.</param>
+    public CubicEnvelope(float x, float y, float width, float height)
     {
-        #region Constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CubicEnvelope" /> struct.
-        /// </summary>
-        /// <param name="rectangle">The rectangle.</param>
-        public CubicEnvelope(RectangleF rectangle)
-            : this(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height)
-        { }
+        var w3 = width * (1f / 3f);
+        var h3 = height * (1f / 3f);
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CubicEnvelope" /> class.
-        /// </summary>
-        /// <param name="x">The x.</param>
-        /// <param name="y">The y.</param>
-        /// <param name="width">The width.</param>
-        /// <param name="height">The height.</param>
-        public CubicEnvelope(float x, float y, float width, float height)
+        //  Top Left
+        ControlPointTopLeft = new CubicControlPoint
         {
-            var w3 = width * (1f / 3f);
-            var h3 = height * (1f / 3f);
+            Point = new PointF(x, y),
+            AnchorA = new PointF(w3, 0f),
+            AnchorB = new PointF(0f, h3)
+        };
 
-            //  Top Left
-            ControlPointTopLeft = new CubicControlPoint
-            {
-                Point = new PointF(x, y),
-                AnchorA = new PointF(w3, 0f),
-                AnchorB = new PointF(0f, h3)
-            };
-
-            //  Top Right
-            ControlPointTopRight = new CubicControlPoint
-            {
-                Point = new PointF(x + width, y),
-                AnchorA = new PointF(-w3, 0f),
-                AnchorB = new PointF(0f, h3)
-            };
-
-            //  Bottom Left
-            ControlPointBottomLeft = new CubicControlPoint
-            {
-                Point = new PointF(x, y + height),
-                AnchorA = new PointF(w3, 0f),
-                AnchorB = new PointF(0f, -h3)
-            };
-
-            //  Bottom Right
-            ControlPointBottomRight = new CubicControlPoint
-            {
-                Point = new PointF(x + width, y + height),
-                AnchorA = new PointF(-w3, 0f),
-                AnchorB = new PointF(0f, -h3)
-            };
-
-            //Update();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CubicEnvelope" /> struct.
-        /// </summary>
-        /// <param name="controlPointTopLeft">The control point top left.</param>
-        /// <param name="controlPointTopRight">The control point top right.</param>
-        /// <param name="controlPointBottomLeft">The control point bottom left.</param>
-        /// <param name="controlPointBottomRight">The control point bottom right.</param>
-        public CubicEnvelope(CubicControlPoint controlPointTopLeft, CubicControlPoint controlPointTopRight, CubicControlPoint controlPointBottomLeft, CubicControlPoint controlPointBottomRight)
+        //  Top Right
+        ControlPointTopRight = new CubicControlPoint
         {
-            (ControlPointTopLeft, ControlPointTopRight, ControlPointBottomLeft, ControlPointBottomRight) = (controlPointTopLeft, controlPointTopRight, controlPointBottomLeft, controlPointBottomRight);
-        }
-        #endregion Constructors
+            Point = new PointF(x + width, y),
+            AnchorA = new PointF(-w3, 0f),
+            AnchorB = new PointF(0f, h3)
+        };
 
-        #region Properties
-        /// <summary>
-        /// Gets or sets the control point top left.
-        /// </summary>
-        /// <value>
-        /// The control point top left.
-        /// </value>
-        public CubicControlPoint ControlPointTopLeft { get; set; }
-
-        /// <summary>
-        /// Gets or sets the control point top right.
-        /// </summary>
-        /// <value>
-        /// The control point top right.
-        /// </value>
-        public CubicControlPoint ControlPointTopRight { get; set; }
-
-        /// <summary>
-        /// Gets or sets the control point bottom left.
-        /// </summary>
-        /// <value>
-        /// The control point bottom left.
-        /// </value>
-        public CubicControlPoint ControlPointBottomLeft { get; set; }
-
-        /// <summary>
-        /// Gets or sets the control point bottom right.
-        /// </summary>
-        /// <value>
-        /// The control point bottom right.
-        /// </value>
-        public CubicControlPoint ControlPointBottomRight { get; set; }
-
-        /// <summary>
-        /// Gets the count.
-        /// </summary>
-        /// <value>
-        /// The count.
-        /// </value>
-        public int Count => 12;
-        #endregion Properties
-
-        #region Enumeration
-        /// <summary>
-        /// The Indexer.
-        /// </summary>
-        /// <value>
-        /// The <see cref="PointF"/>.
-        /// </value>
-        /// <param name="index">The <paramref name="index" /> index.</param>
-        /// <returns>
-        /// One element of type PointF?.
-        /// </returns>
-        /// <exception cref="IndexOutOfRangeException"></exception>
-        public PointF this[int index]
+        //  Bottom Left
+        ControlPointBottomLeft = new CubicControlPoint
         {
-            get
-            {
-                return index switch
-                {
-                    0 => ControlPointTopLeft.Point,
-                    1 => ControlPointTopLeft.AnchorAGlobal,
-                    2 => ControlPointTopRight.AnchorAGlobal,
-                    3 => ControlPointTopRight.Point,
-                    4 => ControlPointTopRight.AnchorBGlobal,
-                    5 => ControlPointBottomLeft.AnchorBGlobal,
-                    6 => ControlPointBottomLeft.Point,
-                    7 => ControlPointBottomLeft.AnchorAGlobal,
-                    8 => ControlPointBottomRight.AnchorAGlobal,
-                    9 => ControlPointBottomRight.Point,
-                    10 => ControlPointBottomRight.AnchorBGlobal,
-                    11 => ControlPointTopLeft.AnchorBGlobal,
-                    _ => throw new IndexOutOfRangeException(),
-                };
-            }
-            set
-            {
-                switch (index)
-                {
-                    case 0:
-                        ControlPointTopLeft = new CubicControlPoint(value, ControlPointTopLeft.AnchorA, ControlPointTopLeft.AnchorB, false);
-                        break;
-                    case 1:
-                        ControlPointTopLeft = new CubicControlPoint(ControlPointTopLeft.Point, value, ControlPointTopLeft.AnchorBGlobal, true);
-                        break;
-                    case 2:
-                        ControlPointTopRight = new CubicControlPoint(ControlPointTopRight.Point, value, ControlPointTopRight.AnchorBGlobal, true);
-                        break;
-                    case 3:
-                        ControlPointTopRight = new CubicControlPoint(value, ControlPointTopRight.AnchorA, ControlPointTopRight.AnchorB, false);
-                        break;
-                    case 4:
-                        ControlPointTopRight = new CubicControlPoint(ControlPointTopRight.Point, ControlPointTopRight.AnchorAGlobal, value, true);
-                        break;
-                    case 5:
-                        ControlPointBottomLeft = new CubicControlPoint(ControlPointBottomLeft.Point, ControlPointBottomLeft.AnchorAGlobal, value, true);
-                        break;
-                    case 6:
-                        ControlPointBottomLeft = new CubicControlPoint(value, ControlPointBottomLeft.AnchorA, ControlPointBottomLeft.AnchorB, false);
-                        break;
-                    case 7:
-                        ControlPointBottomLeft = new CubicControlPoint(ControlPointBottomLeft.Point, value, ControlPointBottomLeft.AnchorBGlobal, true);
-                        break;
-                    case 8:
-                        ControlPointBottomRight = new CubicControlPoint(ControlPointBottomRight.Point, value, ControlPointBottomRight.AnchorBGlobal, true);
-                        break;
-                    case 9:
-                        ControlPointBottomRight = new CubicControlPoint(value, ControlPointBottomRight.AnchorA, ControlPointBottomRight.AnchorB, false);
-                        break;
-                    case 10:
-                        ControlPointBottomRight = new CubicControlPoint(ControlPointBottomRight.Point, ControlPointBottomRight.AnchorAGlobal, value, true);
-                        break;
-                    case 11:
-                        ControlPointTopLeft = new CubicControlPoint(ControlPointTopLeft.Point, ControlPointTopLeft.AnchorAGlobal, value, true);
-                        break;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
-        }
+            Point = new PointF(x, y + height),
+            AnchorA = new PointF(w3, 0f),
+            AnchorB = new PointF(0f, -h3)
+        };
 
-        /// <summary>
-        /// Gets or sets the <see cref="PointF" /> at the specified index.
-        /// </summary>
-        /// <value>
-        /// The <see cref="PointF" />.
-        /// </value>
-        /// <param name="index">The index.</param>
-        /// <returns></returns>
-        public PointF this[Index index] { get { return this[index.Value]; } set { this[index.Value] = value; } }
-
-        /// <summary>
-        /// Get the enumerator.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="T:IEnumerator{CubicControlPoint}" />.
-        /// </returns>
-        public IEnumerator<PointF> GetEnumerator()
+        //  Bottom Right
+        ControlPointBottomRight = new CubicControlPoint
         {
-            yield return ControlPointTopLeft.Point;
-            yield return ControlPointTopLeft.AnchorAGlobal;
-            yield return ControlPointTopRight.AnchorAGlobal;
-            yield return ControlPointTopRight.Point;
-            yield return ControlPointTopRight.AnchorBGlobal;
-            yield return ControlPointBottomLeft.AnchorBGlobal;
-            yield return ControlPointBottomLeft.Point;
-            yield return ControlPointBottomLeft.AnchorAGlobal;
-            yield return ControlPointBottomRight.AnchorAGlobal;
-            yield return ControlPointBottomRight.Point;
-            yield return ControlPointBottomRight.AnchorBGlobal;
-            yield return ControlPointTopLeft.AnchorBGlobal;
-        }
-        #endregion Enumeration
+            Point = new PointF(x + width, y + height),
+            AnchorA = new PointF(-w3, 0f),
+            AnchorB = new PointF(0f, -h3)
+        };
 
-        #region Operators
-        /// <summary>
-        /// The operator ==.
-        /// </summary>
-        /// <param name="left">The <paramref name="left" />.</param>
-        /// <param name="right">The <paramref name="right" />.</param>
-        /// <returns>
-        /// The <see cref="bool" />.
-        /// </returns>
-        public static bool operator ==(CubicEnvelope left, CubicEnvelope right) => left.Equals(right);
-
-        /// <summary>
-        /// The operator !=.
-        /// </summary>
-        /// <param name="left">The <paramref name="left" />.</param>
-        /// <param name="right">The <paramref name="right" />.</param>
-        /// <returns>
-        /// The <see cref="bool" />.
-        /// </returns>
-        public static bool operator !=(CubicEnvelope left, CubicEnvelope right) => !(left == right);
-        #endregion Operators
-
-        #region Methods
-        /// <summary>
-        /// Processes the point.
-        /// </summary>
-        /// <param name="bounds">The bounds.</param>
-        /// <param name="point">The point.</param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public PointF ProcessPoint(RectangleF bounds, PointF point) => Mathematics.CubicBezierEnvelopeOptimized(
-            point,
-            bounds,
-            ControlPointTopLeft.Point, ControlPointTopLeft.AnchorAGlobal, ControlPointTopLeft.AnchorBGlobal,
-            ControlPointTopRight.Point, ControlPointTopRight.AnchorAGlobal, ControlPointTopRight.AnchorBGlobal,
-            ControlPointBottomRight.Point, ControlPointBottomRight.AnchorAGlobal, ControlPointBottomRight.AnchorBGlobal,
-            ControlPointBottomLeft.Point, ControlPointBottomLeft.AnchorAGlobal, ControlPointBottomLeft.AnchorBGlobal
-        );
-
-        /// <summary>
-        /// Clears this instance.
-        /// </summary>
-        /// <exception cref="System.NotImplementedException"></exception>
-        public void Clear() => throw new NotImplementedException();
-
-        /// <summary>
-        /// Removes the specified point.
-        /// </summary>
-        /// <param name="point">The point.</param>
-        /// <exception cref="System.NotImplementedException"></exception>
-        public void Remove(PointF point) => throw new NotImplementedException();
-
-        /// <summary>
-        /// Translates the specified delta.
-        /// </summary>
-        /// <param name="delta">The delta.</param>
-        /// <returns></returns>
-        /// <exception cref="System.NotImplementedException"></exception>
-        public IGeometry Translate(Vector2 delta) => throw new NotImplementedException();
-
-        /// <summary>
-        /// Queries whether the shape includes the specified point in it's geometry.
-        /// </summary>
-        /// <param name="point">The point.</param>
-        /// <returns></returns>
-        /// <exception cref="System.NotImplementedException"></exception>
-        public bool Includes(PointF point) => throw new NotImplementedException();
-
-        /// <summary>
-        /// Get the hash code.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="int" />.
-        /// </returns>
-        public override int GetHashCode() => HashCode.Combine(ControlPointTopLeft, ControlPointTopRight, ControlPointBottomLeft, ControlPointBottomRight);
-
-        /// <summary>
-        /// The equals.
-        /// </summary>
-        /// <param name="obj">The <paramref name="obj" />.</param>
-        /// <returns>
-        /// The <see cref="bool" />.
-        /// </returns>
-        public override bool Equals(object? obj) => obj is CubicEnvelope envelope && Equals(envelope);
-
-        /// <summary>
-        /// The equals.
-        /// </summary>
-        /// <param name="envelope">The <paramref name="envelope" />.</param>
-        /// <returns>
-        /// The <see cref="bool" />.
-        /// </returns>
-        public bool Equals(CubicEnvelope envelope) => ControlPointTopLeft.Equals(envelope.ControlPointTopLeft) && ControlPointTopRight.Equals(envelope.ControlPointTopRight) && ControlPointBottomLeft.Equals(envelope.ControlPointBottomLeft) && ControlPointBottomRight.Equals(envelope.ControlPointBottomRight);
-
-        /// <summary>
-        /// The equals.
-        /// </summary>
-        /// <param name="a">The <paramref name="a" />.</param>
-        /// <param name="b">The <paramref name="b" />.</param>
-        /// <returns>
-        /// The <see cref="bool" />.
-        /// </returns>
-        public static bool Equals(CubicEnvelope a, CubicEnvelope b) => a.Equals(b);
-
-        /// <summary>
-        /// The compare.
-        /// </summary>
-        /// <param name="a">The <paramref name="a" />.</param>
-        /// <param name="b">The <paramref name="b" />.</param>
-        /// <returns>
-        /// The <see cref="bool" />.
-        /// </returns>
-        public static bool Compare(CubicEnvelope a, CubicEnvelope b) => a.Equals(b);
-
-        /// <summary>
-        /// Creates a human-readable string that represents this <see cref="CubicEnvelope" />.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="string" /> that represents this instance.
-        /// </returns>
-        public override string ToString() => ToString(null /* format string */, CultureInfo.InvariantCulture /* format provider */);
-
-        /// <summary>
-        /// Creates a <see cref="string" /> representation of this <see cref="CubicEnvelope" /> struct based on the IFormatProvider
-        /// passed in.  If the provider is null, the CurrentCulture is used.
-        /// </summary>
-        /// <param name="provider">The <paramref name="provider" />.</param>
-        /// <returns>
-        /// A <see cref="string" /> representation of this object.
-        /// </returns>
-        public string ToString(IFormatProvider provider) => ToString(null /* format string */, provider);
-
-        /// <summary>
-        /// Creates a <see cref="string" /> representation of this <see cref="CubicEnvelope" /> class based on the format string
-        /// and IFormatProvider passed in.
-        /// If the provider is null, the CurrentCulture is used.
-        /// See the documentation for IFormattable for more information.
-        /// </summary>
-        /// <param name="format">The format.</param>
-        /// <param name="provider">The provider.</param>
-        /// <returns>
-        /// A <see cref="string" /> representation of this object.
-        /// </returns>
-        public string ToString(string? format, IFormatProvider provider)
-        {
-            const char sep = ',';
-            return $"{nameof(CubicEnvelope)}{{{nameof(ControlPointTopLeft)}={ControlPointTopLeft.ToString(format, provider)}" +
-                $"{sep}{nameof(ControlPointTopRight)}={ControlPointTopRight.ToString(format, provider)}" +
-                $"{sep}{nameof(ControlPointBottomLeft)}={ControlPointBottomLeft.ToString(format, provider)}" +
-                $"{sep}{nameof(ControlPointBottomRight)}={ControlPointBottomRight.ToString(format, provider)}}}";
-        }
-
-        /// <summary>
-        /// Gets the debugger display.
-        /// </summary>
-        /// <returns></returns>
-        private string GetDebuggerDisplay() => ToString();
-        #endregion Methods
+        //Update();
     }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CubicEnvelope" /> struct.
+    /// </summary>
+    /// <param name="controlPointTopLeft">The control point top left.</param>
+    /// <param name="controlPointTopRight">The control point top right.</param>
+    /// <param name="controlPointBottomLeft">The control point bottom left.</param>
+    /// <param name="controlPointBottomRight">The control point bottom right.</param>
+    public CubicEnvelope(CubicControlPoint controlPointTopLeft, CubicControlPoint controlPointTopRight, CubicControlPoint controlPointBottomLeft, CubicControlPoint controlPointBottomRight)
+    {
+        (ControlPointTopLeft, ControlPointTopRight, ControlPointBottomLeft, ControlPointBottomRight) = (controlPointTopLeft, controlPointTopRight, controlPointBottomLeft, controlPointBottomRight);
+    }
+    #endregion Constructors
+
+    #region Properties
+    /// <summary>
+    /// Gets or sets the control point top left.
+    /// </summary>
+    /// <value>
+    /// The control point top left.
+    /// </value>
+    public CubicControlPoint ControlPointTopLeft { get; set; }
+
+    /// <summary>
+    /// Gets or sets the control point top right.
+    /// </summary>
+    /// <value>
+    /// The control point top right.
+    /// </value>
+    public CubicControlPoint ControlPointTopRight { get; set; }
+
+    /// <summary>
+    /// Gets or sets the control point bottom left.
+    /// </summary>
+    /// <value>
+    /// The control point bottom left.
+    /// </value>
+    public CubicControlPoint ControlPointBottomLeft { get; set; }
+
+    /// <summary>
+    /// Gets or sets the control point bottom right.
+    /// </summary>
+    /// <value>
+    /// The control point bottom right.
+    /// </value>
+    public CubicControlPoint ControlPointBottomRight { get; set; }
+
+    /// <summary>
+    /// Gets the count.
+    /// </summary>
+    /// <value>
+    /// The count.
+    /// </value>
+    public int Count => 12;
+    #endregion Properties
+
+    #region Enumeration
+    /// <summary>
+    /// The Indexer.
+    /// </summary>
+    /// <value>
+    /// The <see cref="PointF"/>.
+    /// </value>
+    /// <param name="index">The <paramref name="index" /> index.</param>
+    /// <returns>
+    /// One element of type PointF?.
+    /// </returns>
+    /// <exception cref="IndexOutOfRangeException"></exception>
+    public PointF this[int index]
+    {
+        get
+        {
+            return index switch
+            {
+                0 => ControlPointTopLeft.Point,
+                1 => ControlPointTopLeft.AnchorAGlobal,
+                2 => ControlPointTopRight.AnchorAGlobal,
+                3 => ControlPointTopRight.Point,
+                4 => ControlPointTopRight.AnchorBGlobal,
+                5 => ControlPointBottomLeft.AnchorBGlobal,
+                6 => ControlPointBottomLeft.Point,
+                7 => ControlPointBottomLeft.AnchorAGlobal,
+                8 => ControlPointBottomRight.AnchorAGlobal,
+                9 => ControlPointBottomRight.Point,
+                10 => ControlPointBottomRight.AnchorBGlobal,
+                11 => ControlPointTopLeft.AnchorBGlobal,
+                _ => throw new IndexOutOfRangeException(),
+            };
+        }
+        set
+        {
+            switch (index)
+            {
+                case 0:
+                    ControlPointTopLeft = new CubicControlPoint(value, ControlPointTopLeft.AnchorA, ControlPointTopLeft.AnchorB, false);
+                    break;
+                case 1:
+                    ControlPointTopLeft = new CubicControlPoint(ControlPointTopLeft.Point, value, ControlPointTopLeft.AnchorBGlobal, true);
+                    break;
+                case 2:
+                    ControlPointTopRight = new CubicControlPoint(ControlPointTopRight.Point, value, ControlPointTopRight.AnchorBGlobal, true);
+                    break;
+                case 3:
+                    ControlPointTopRight = new CubicControlPoint(value, ControlPointTopRight.AnchorA, ControlPointTopRight.AnchorB, false);
+                    break;
+                case 4:
+                    ControlPointTopRight = new CubicControlPoint(ControlPointTopRight.Point, ControlPointTopRight.AnchorAGlobal, value, true);
+                    break;
+                case 5:
+                    ControlPointBottomLeft = new CubicControlPoint(ControlPointBottomLeft.Point, ControlPointBottomLeft.AnchorAGlobal, value, true);
+                    break;
+                case 6:
+                    ControlPointBottomLeft = new CubicControlPoint(value, ControlPointBottomLeft.AnchorA, ControlPointBottomLeft.AnchorB, false);
+                    break;
+                case 7:
+                    ControlPointBottomLeft = new CubicControlPoint(ControlPointBottomLeft.Point, value, ControlPointBottomLeft.AnchorBGlobal, true);
+                    break;
+                case 8:
+                    ControlPointBottomRight = new CubicControlPoint(ControlPointBottomRight.Point, value, ControlPointBottomRight.AnchorBGlobal, true);
+                    break;
+                case 9:
+                    ControlPointBottomRight = new CubicControlPoint(value, ControlPointBottomRight.AnchorA, ControlPointBottomRight.AnchorB, false);
+                    break;
+                case 10:
+                    ControlPointBottomRight = new CubicControlPoint(ControlPointBottomRight.Point, ControlPointBottomRight.AnchorAGlobal, value, true);
+                    break;
+                case 11:
+                    ControlPointTopLeft = new CubicControlPoint(ControlPointTopLeft.Point, ControlPointTopLeft.AnchorAGlobal, value, true);
+                    break;
+                default:
+                    throw new IndexOutOfRangeException();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the <see cref="PointF" /> at the specified index.
+    /// </summary>
+    /// <value>
+    /// The <see cref="PointF" />.
+    /// </value>
+    /// <param name="index">The index.</param>
+    /// <returns></returns>
+    public PointF this[Index index] { get { return this[index.Value]; } set { this[index.Value] = value; } }
+
+    /// <summary>
+    /// Get the enumerator.
+    /// </summary>
+    /// <returns>
+    /// The <see cref="T:IEnumerator{CubicControlPoint}" />.
+    /// </returns>
+    public IEnumerator<PointF> GetEnumerator()
+    {
+        yield return ControlPointTopLeft.Point;
+        yield return ControlPointTopLeft.AnchorAGlobal;
+        yield return ControlPointTopRight.AnchorAGlobal;
+        yield return ControlPointTopRight.Point;
+        yield return ControlPointTopRight.AnchorBGlobal;
+        yield return ControlPointBottomLeft.AnchorBGlobal;
+        yield return ControlPointBottomLeft.Point;
+        yield return ControlPointBottomLeft.AnchorAGlobal;
+        yield return ControlPointBottomRight.AnchorAGlobal;
+        yield return ControlPointBottomRight.Point;
+        yield return ControlPointBottomRight.AnchorBGlobal;
+        yield return ControlPointTopLeft.AnchorBGlobal;
+    }
+    #endregion Enumeration
+
+    #region Operators
+    /// <summary>
+    /// The operator ==.
+    /// </summary>
+    /// <param name="left">The <paramref name="left" />.</param>
+    /// <param name="right">The <paramref name="right" />.</param>
+    /// <returns>
+    /// The <see cref="bool" />.
+    /// </returns>
+    public static bool operator ==(CubicEnvelope left, CubicEnvelope right) => left.Equals(right);
+
+    /// <summary>
+    /// The operator !=.
+    /// </summary>
+    /// <param name="left">The <paramref name="left" />.</param>
+    /// <param name="right">The <paramref name="right" />.</param>
+    /// <returns>
+    /// The <see cref="bool" />.
+    /// </returns>
+    public static bool operator !=(CubicEnvelope left, CubicEnvelope right) => !(left == right);
+    #endregion Operators
+
+    #region Methods
+    /// <summary>
+    /// Processes the point.
+    /// </summary>
+    /// <param name="bounds">The bounds.</param>
+    /// <param name="point">The point.</param>
+    /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public PointF ProcessPoint(RectangleF bounds, PointF point) => Mathematics.CubicBezierEnvelopeOptimized(
+        point,
+        bounds,
+        ControlPointTopLeft.Point, ControlPointTopLeft.AnchorAGlobal, ControlPointTopLeft.AnchorBGlobal,
+        ControlPointTopRight.Point, ControlPointTopRight.AnchorAGlobal, ControlPointTopRight.AnchorBGlobal,
+        ControlPointBottomRight.Point, ControlPointBottomRight.AnchorAGlobal, ControlPointBottomRight.AnchorBGlobal,
+        ControlPointBottomLeft.Point, ControlPointBottomLeft.AnchorAGlobal, ControlPointBottomLeft.AnchorBGlobal
+    );
+
+    /// <summary>
+    /// Clears this instance.
+    /// </summary>
+    /// <exception cref="System.NotImplementedException"></exception>
+    public void Clear() => throw new NotImplementedException();
+
+    /// <summary>
+    /// Removes the specified point.
+    /// </summary>
+    /// <param name="point">The point.</param>
+    /// <exception cref="System.NotImplementedException"></exception>
+    public void Remove(PointF point) => throw new NotImplementedException();
+
+    /// <summary>
+    /// Translates the specified delta.
+    /// </summary>
+    /// <param name="delta">The delta.</param>
+    /// <returns></returns>
+    /// <exception cref="System.NotImplementedException"></exception>
+    public IGeometry Translate(Vector2 delta) => throw new NotImplementedException();
+
+    /// <summary>
+    /// Queries whether the shape includes the specified point in it's geometry.
+    /// </summary>
+    /// <param name="point">The point.</param>
+    /// <returns></returns>
+    /// <exception cref="System.NotImplementedException"></exception>
+    public bool Includes(PointF point) => throw new NotImplementedException();
+
+    /// <summary>
+    /// Get the hash code.
+    /// </summary>
+    /// <returns>
+    /// The <see cref="int" />.
+    /// </returns>
+    public override int GetHashCode() => HashCode.Combine(ControlPointTopLeft, ControlPointTopRight, ControlPointBottomLeft, ControlPointBottomRight);
+
+    /// <summary>
+    /// The equals.
+    /// </summary>
+    /// <param name="obj">The <paramref name="obj" />.</param>
+    /// <returns>
+    /// The <see cref="bool" />.
+    /// </returns>
+    public override bool Equals(object? obj) => obj is CubicEnvelope envelope && Equals(envelope);
+
+    /// <summary>
+    /// The equals.
+    /// </summary>
+    /// <param name="envelope">The <paramref name="envelope" />.</param>
+    /// <returns>
+    /// The <see cref="bool" />.
+    /// </returns>
+    public bool Equals(CubicEnvelope envelope) => ControlPointTopLeft.Equals(envelope.ControlPointTopLeft) && ControlPointTopRight.Equals(envelope.ControlPointTopRight) && ControlPointBottomLeft.Equals(envelope.ControlPointBottomLeft) && ControlPointBottomRight.Equals(envelope.ControlPointBottomRight);
+
+    /// <summary>
+    /// The equals.
+    /// </summary>
+    /// <param name="a">The <paramref name="a" />.</param>
+    /// <param name="b">The <paramref name="b" />.</param>
+    /// <returns>
+    /// The <see cref="bool" />.
+    /// </returns>
+    public static bool Equals(CubicEnvelope a, CubicEnvelope b) => a.Equals(b);
+
+    /// <summary>
+    /// The compare.
+    /// </summary>
+    /// <param name="a">The <paramref name="a" />.</param>
+    /// <param name="b">The <paramref name="b" />.</param>
+    /// <returns>
+    /// The <see cref="bool" />.
+    /// </returns>
+    public static bool Compare(CubicEnvelope a, CubicEnvelope b) => a.Equals(b);
+
+    /// <summary>
+    /// Creates a human-readable string that represents this <see cref="CubicEnvelope" />.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="string" /> that represents this instance.
+    /// </returns>
+    public override string ToString() => ToString(null /* format string */, CultureInfo.InvariantCulture /* format provider */);
+
+    /// <summary>
+    /// Creates a <see cref="string" /> representation of this <see cref="CubicEnvelope" /> struct based on the IFormatProvider
+    /// passed in.  If the provider is null, the CurrentCulture is used.
+    /// </summary>
+    /// <param name="provider">The <paramref name="provider" />.</param>
+    /// <returns>
+    /// A <see cref="string" /> representation of this object.
+    /// </returns>
+    public string ToString(IFormatProvider provider) => ToString(null /* format string */, provider);
+
+    /// <summary>
+    /// Creates a <see cref="string" /> representation of this <see cref="CubicEnvelope" /> class based on the format string
+    /// and IFormatProvider passed in.
+    /// If the provider is null, the CurrentCulture is used.
+    /// See the documentation for IFormattable for more information.
+    /// </summary>
+    /// <param name="format">The format.</param>
+    /// <param name="provider">The provider.</param>
+    /// <returns>
+    /// A <see cref="string" /> representation of this object.
+    /// </returns>
+    public string ToString(string? format, IFormatProvider provider)
+    {
+        const char sep = ',';
+        return $"{nameof(CubicEnvelope)}{{{nameof(ControlPointTopLeft)}={ControlPointTopLeft.ToString(format, provider)}" +
+            $"{sep}{nameof(ControlPointTopRight)}={ControlPointTopRight.ToString(format, provider)}" +
+            $"{sep}{nameof(ControlPointBottomLeft)}={ControlPointBottomLeft.ToString(format, provider)}" +
+            $"{sep}{nameof(ControlPointBottomRight)}={ControlPointBottomRight.ToString(format, provider)}}}";
+    }
+
+    /// <summary>
+    /// Gets the debugger display.
+    /// </summary>
+    /// <returns></returns>
+    private string GetDebuggerDisplay() => ToString();
+    #endregion Methods
 }

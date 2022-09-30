@@ -2,8 +2,8 @@
   
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <Platforms>AnyCPU;x64;x86</Platforms>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <Platforms>AnyCPU;ARM32;ARM64;x64;x86</Platforms>
     <UseWindowsForms>true</UseWindowsForms>
     <Version>0.0.0.1</Version>
     <Authors>Shkyrockett</Authors>

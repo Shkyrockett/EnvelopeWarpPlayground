@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Platforms>AnyCPU;x64;x86</Platforms>
+    <TargetFramework>net7.0</TargetFramework>
+    <Platforms>AnyCPU;ARM32;ARM64;x64;x86</Platforms>
     <Version>0.0.0.1</Version>
     <Nullable>enable</Nullable>
     <NeutralLanguage>en-US</NeutralLanguage>

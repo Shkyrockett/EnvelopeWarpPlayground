@@ -1,56 +1,58 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net7.0-windows</TargetFramework>
-    <Platforms>AnyCPU;ARM32;ARM64;x64;x86</Platforms>
-    <UseWindowsForms>true</UseWindowsForms>
-    <Version>0.0.0.1</Version>
-    <Authors>Shkyrockett</Authors>
-    <Copyright>Copyright © Shkyrockett 2019 - 2020</Copyright>
-    <PackageLicenseFile>Properties\LICENSE.md</PackageLicenseFile>
-    <Description>Test application used for investigating envelope warping of polygonal geometry.</Description>
-    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
-    <DocumentationFile>$(OutputPath)$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<Platforms>AnyCPU;ARM32;ARM64;x64;x86</Platforms>
+		<UseWindowsForms>true</UseWindowsForms>
+		<VersionPrefix>0.0.0.1</VersionPrefix>
+		<NeutralLanguage>en-US</NeutralLanguage>
+		<VersionSuffix>Alpha</VersionSuffix>
+		<Authors>Shkyrockett</Authors>
+		<Copyright>Copyright © Shkyrockett 2019 - 2020</Copyright>
+		<PackageLicenseFile>Properties\LICENSE.md</PackageLicenseFile>
+		<Description>Test application used for investigating envelope warping of polygonal geometry.</Description>
+		<OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+		<DocumentationFile>$(OutputPath)$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <Optimize>true</Optimize>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Include="..\.editorconfig" Link="Properties\.editorconfig" />
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <None Update="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <Compile Update="Properties\Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-    <None Include="..\LICENSE.md" Link="Properties\LICENSE.md">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<Optimize>true</Optimize>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\EnvelopeWarpLibrary\EnvelopeWarpLibrary.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="..\.editorconfig" Link="Properties\.editorconfig" />
+		<EmbeddedResource Update="Properties\Resources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<Compile Update="Properties\Resources.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
+		<None Update="Properties\Settings.settings">
+			<Generator>SettingsSingleFileGenerator</Generator>
+			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
+		</None>
+		<Compile Update="Properties\Settings.Designer.cs">
+			<DesignTimeSharedInput>True</DesignTimeSharedInput>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Settings.settings</DependentUpon>
+		</Compile>
+		<None Include="..\LICENSE.md" Link="Properties\LICENSE.md">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\EnvelopeWarpLibrary\EnvelopeWarpLibrary.csproj" />
+	</ItemGroup>
 
 </Project>

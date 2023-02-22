@@ -133,8 +133,8 @@ public static class Mathematics
             var previous = contour[^1];
             foreach (var point in contour)
             {
-                var dist = 1f / Distance(previous, point) * 2f;
-                for (var i = 0f; i < 1; i += dist)
+                var distance = 1f / Distance(previous, point) * 2f;
+                for (var i = 0f; i < 1; i += distance)
                 {
                     distortion.Add(envelope.ProcessPoint(bounds, Lerp(previous, point, i)));
                 }
@@ -167,8 +167,8 @@ public static class Mathematics
         var previous = contour[^1];
         foreach (var point in contour)
         {
-            var dist = 1f / Distance(previous, point) * 2f;
-            for (var i = 0f; i < 1; i += dist)
+            var distance = 1f / Distance(previous, point) * 2f;
+            for (var i = 0f; i < 1; i += distance)
             {
                 distortion.Add(envelope.ProcessPoint(bounds, Lerp(previous, point, i)));
             }
@@ -630,7 +630,7 @@ public static class Mathematics
 
     #region Distance Methods
     /// <summary>
-    /// Calculates the distance between two points in 2-dimensional euclidean space.
+    /// Calculates the distance between two points in 2-dimensional Euclidean space.
     /// </summary>
     /// <param name="point1">First point.</param>
     /// <param name="point2">Second point.</param>
@@ -754,24 +754,24 @@ public static class Mathematics
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RectangleF? PolygonBounds(Group group)
     {
-        var rect = new RectangleF();
+        var rectangle = new RectangleF();
         foreach (var shape in group)
         {
             switch (shape)
             {
                 case Group g:
                     {
-                        if (PolygonBounds(g) is RectangleF bounds) rect = Union(rect, bounds);
+                        if (PolygonBounds(g) is RectangleF bounds) rectangle = Union(rectangle, bounds);
                     }
                     break;
                 case Polygon p:
                     {
-                        if (PolygonBounds(p) is RectangleF bounds) rect = Union(rect, bounds);
+                        if (PolygonBounds(p) is RectangleF bounds) rectangle = Union(rectangle, bounds);
                     }
                     break;
                 case PolygonContour c:
                     {
-                        if (PolygonBounds(c) is RectangleF bounds) rect = Union(rect, bounds);
+                        if (PolygonBounds(c) is RectangleF bounds) rectangle = Union(rectangle, bounds);
                     }
                     break;
                 default:
@@ -779,7 +779,7 @@ public static class Mathematics
             }
 
         }
-        return rect;
+        return rectangle;
     }
 
     /// <summary>
@@ -792,12 +792,12 @@ public static class Mathematics
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RectangleF? PolygonBounds(List<Polygon> polygons)
     {
-        var rect = new RectangleF();
+        var rectangle = new RectangleF();
         foreach (var polygon in polygons)
         {
-            if (PolygonBounds(polygon.Contours) is RectangleF bounds) rect = Union(rect, bounds);
+            if (PolygonBounds(polygon.Contours) is RectangleF bounds) rectangle = Union(rectangle, bounds);
         }
-        return rect;
+        return rectangle;
     }
 
     /// <summary>
@@ -810,9 +810,9 @@ public static class Mathematics
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RectangleF? PolygonBounds(Polygon polygon)
     {
-        var rect = new RectangleF();
-        if (PolygonBounds(polygon.Contours) is RectangleF bounds) rect = Union(rect, bounds);
-        return rect;
+        var rectangle = new RectangleF();
+        if (PolygonBounds(polygon.Contours) is RectangleF bounds) rectangle = Union(rectangle, bounds);
+        return rectangle;
     }
 
     /// <summary>
@@ -825,12 +825,12 @@ public static class Mathematics
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RectangleF? PolygonBounds(List<PolygonContour> polygons)
     {
-        var rect = new RectangleF();
+        var rectangle = new RectangleF();
         foreach (var polygon in polygons)
         {
-            if (PolygonBounds(polygon.Points) is RectangleF bounds) rect = Union(rect, bounds);
+            if (PolygonBounds(polygon.Points) is RectangleF bounds) rectangle = Union(rectangle, bounds);
         }
-        return rect;
+        return rectangle;
     }
 
     /// <summary>
@@ -843,9 +843,9 @@ public static class Mathematics
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RectangleF? PolygonBounds(PolygonContour contour)
     {
-        var rect = new RectangleF();
-        if (PolygonBounds(contour.Points) is RectangleF bounds) rect = Union(rect, bounds);
-        return rect;
+        var rectangle = new RectangleF();
+        if (PolygonBounds(contour.Points) is RectangleF bounds) rectangle = Union(rectangle, bounds);
+        return rectangle;
     }
 
     /// <summary>
@@ -882,40 +882,40 @@ public static class Mathematics
     /// <summary>
     /// Return a rectangle that is a union of this and a supplied Rectangle2D.
     /// </summary>
-    /// <param name="rectA">The rectA.</param>
-    /// <param name="rectB">The rectB.</param>
+    /// <param name="rectangleA">The rectangle A.</param>
+    /// <param name="rectangleB">The rectangle B.</param>
     /// <returns>
     /// The <see cref="RectangleF" />.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static RectangleF Union(this RectangleF rectA, RectangleF rectB)
+    public static RectangleF Union(this RectangleF rectangleA, RectangleF rectangleB)
     {
-        var left = Min(rectA.Left, rectB.Left);
-        var top = Min(rectA.Top, rectB.Top);
+        var left = Min(rectangleA.Left, rectangleB.Left);
+        var top = Min(rectangleA.Top, rectangleB.Top);
 
         float width;
         // We need this check so that the math does not result in NaN
-        if (double.IsPositiveInfinity(rectB.Width) || double.IsPositiveInfinity(rectA.Width))
+        if (double.IsPositiveInfinity(rectangleB.Width) || double.IsPositiveInfinity(rectangleA.Width))
         {
             width = float.PositiveInfinity;
         }
         else
         {
             //  Max with 0 to prevent double weirdness from causing us to be (-epsilon..0)
-            var maxRight = Max(rectA.Right, rectB.Right);
+            var maxRight = Max(rectangleA.Right, rectangleB.Right);
             width = Max(maxRight - left, 0);
         }
 
         float height;
         // We need this check so that the math does not result in NaN
-        if (double.IsPositiveInfinity(rectB.Height) || double.IsPositiveInfinity(rectA.Height))
+        if (double.IsPositiveInfinity(rectangleB.Height) || double.IsPositiveInfinity(rectangleA.Height))
         {
             height = float.PositiveInfinity;
         }
         else
         {
             //  Max with 0 to prevent double weirdness from causing us to be (-epsilon..0)
-            var maxBottom = Max(rectA.Bottom, rectB.Bottom);
+            var maxBottom = Max(rectangleA.Bottom, rectangleB.Bottom);
             height = Max(maxBottom - top, 0);
         }
 
@@ -937,10 +937,7 @@ public static class Mathematics
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Inclusions PolygonContainsPoint(List<PolygonContour> polygon, PointF point, float epsilon = float.Epsilon)
     {
-        if (polygon is null)
-        {
-            throw new ArgumentNullException(nameof(polygon));
-        }
+        ArgumentNullException.ThrowIfNull(polygon);
 
         var returnValue = Inclusions.Outside;
 
